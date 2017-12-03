@@ -1,5 +1,6 @@
 package view;
 
+import com.splider.controller.CrawlerController;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -11,8 +12,9 @@ public class MainPanel extends Application {
         stage.setTitle("crawler");
 
         Parent root = FXMLLoader.load(getClass().getResource("/main.fxml"));
-        Scene scene =new Scene(root,300,200);
+        Scene scene =new Scene(root,600,450);
         stage.setScene(scene);
+        CrawlerController controller=new CrawlerController();
         stage.show();
     }
 

@@ -3,11 +3,10 @@ package com.splider.rule;
 public class PageRule {
 
 
-    private String startStr;
-    private String endStr;
+    protected String url;
     private boolean cycle;
-    private int maxPage;
-    private int maxPerPage;
+    private int maxPage=-1;
+    private int maxPerPage=1000;
 
 
     public int getMaxPerPage() {
@@ -34,19 +33,12 @@ public class PageRule {
         this.maxPage = maxPage;
     }
 
-    public String getStartStr() {
-        return startStr;
+
+    public String getUrl() {
+        return url;
     }
 
-    public void setStartStr(String startStr) {
-        this.startStr = startStr;
-    }
-
-    public String getEndStr() {
-        return endStr;
-    }
-
-    public void setEndStr(String endStr) {
-        this.endStr = endStr;
+    public void setUrl(String url) {
+        this.url = url;
     }
 }

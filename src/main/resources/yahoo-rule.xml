@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<rules>
+    <!-- 地址页采集规则 -->
+    <rule>
+        <type>url</type>
+        <entitys>
+            <entity>
+                <key></key>
+                <cssquery>li.elNext a</cssquery>
+                <attr>abs:href</attr>
+                <defaultValue></defaultValue>
+                <crawType>FLIP</crawType>
+            </entity>
+            <entity>
+                <key>catalog</key>
+                <cssquery>div#TopSPathList1 li:last-child strong</cssquery>
+                <crawType>CONTENT</crawType>
+            </entity>
+            <entity>
+                <cssquery>div#itmlst li dt a</cssquery>
+                <crawType>LIST</crawType>
+            </entity>
+        </entitys>
+    </rule>
+<!-- 详情页采集规则 -->
+    <rule>
+        <type>DETAIL</type>
+        <entitys>
+            <entity>
+                <key>path</key>
+                <cssquery>div#TopSPathList1 a:gt(0)</cssquery>
+                <defaultValue></defaultValue>
+                <crawType>CONTENT</crawType>
+                <valueType>LIST</valueType>
+            </entity>
+            <entity>
+                <key>name</key>
+                <cssquery>div.mdItemInfoTitle h2</cssquery>
+                <crawType>CONTENT</crawType>
+            </entity>
+            <entity>
+                <key>code</key>
+                <cssquery>div#abuserpt p:last</cssquery>
+                <crawType>STRING(6)</crawType>
+            </entity>
+            <entity>
+                <key>code</key>
+                <cssquery>div#abuserpt p:last</cssquery>
+                <crawType>STRING(6)</crawType>
+            </entity>
+            <entity>
+                <key>sub-code</key>
+                <cssquery>div#abuserpt p:last</cssquery>
+                <crawType>STRING(6)</crawType>
+            </entity>
+            <entity>
+                <key>original-price</key>
+            </entity>
+            <entity>
+                <key>price</key>
+                <cssquery>span.elNum</cssquery>
+                <crawType>STRING.replace(,)</crawType>
+            </entity>
+            <entity>
+                <key>price</key>
+                <cssquery>span.elNum</cssquery>
+                <crawType>STRING.replace(,)</crawType>
+            </entity>
+            <entity>
+                <key>sale-price</key>
+                <cssquery>span.elNum</cssquery>
+                <crawType>STRING(0,1)replace(,)</crawType>
+            </entity>
+            <entity>
+                <key>sale-price</key>
+                <cssquery>span.elNum</cssquery>
+                <crawType>STRING(0,1)replace(,)</crawType>
+            </entity>
+        </entitys>
+    </rule>
+</rules>
