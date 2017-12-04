@@ -1,7 +1,5 @@
 package com.splider.crowler;
 
-import com.splider.store.PageCount;
-
 import java.util.Hashtable;
 import java.util.Map;
 

@@ -11,7 +11,6 @@ import java.util.List;
 
 public class HtmlParser {
 
-    private Jsoup parser;
     private Filters filter;
 
     public HtmlParser(){
@@ -34,7 +33,7 @@ public class HtmlParser {
     }
 
     public static void main(String[] arg) throws IOException {
-        UrlCrawlRule firstUrl=new UrlCrawlRule("https://store.shopping.yahoo.co.jp/allhqfashion/a25aa652a5a.html", CrawlType.LIST);
+        UrlCrawlRule firstUrl=new UrlCrawlRule("https://store.shopping.yahoo.co.jp/allhqfashion/a5dba1bca5.html", CrawlType.LIST);
         HtmlParser parser=new HtmlParser();
         List<Entity> entities=new ArrayList<Entity>();
         entities.add(new Entity("","li.elNext a","abs:href",CrawlType.FLIP));

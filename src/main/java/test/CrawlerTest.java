@@ -13,6 +13,7 @@ import java.util.Map;
 public class CrawlerTest {
 
     public static void main(String[] args){
+        //https://store.shopping.yahoo.co.jp/allhqfashion/a5dba1bca5.html
         String url ="https://store.shopping.yahoo.co.jp/allhqfashion/yoga0005.html";
         try {
             Document doc = Jsoup.connect(url)
@@ -23,7 +24,10 @@ public class CrawlerTest {
                     .get();
             CrawlerTest test=new CrawlerTest();
 
-            System.out.println(test.extract(doc));
+            System.out.println(doc.select("div#CentItemCaption1 center img"));
+//            for()
+
+//            System.out.println(test.extract(doc).get("relevant-links"));
         } catch (IOException e) {
             e.printStackTrace();
         }

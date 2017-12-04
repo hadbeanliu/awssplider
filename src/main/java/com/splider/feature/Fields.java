@@ -6,11 +6,7 @@ import jxl.Sheet;
 import jxl.Workbook;
 import jxl.read.biff.BiffException;
 
-import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 public class Fields implements Cloneable{
