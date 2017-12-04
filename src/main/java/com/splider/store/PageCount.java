@@ -4,47 +4,57 @@ import java.util.List;
 
 public class PageCount {
 
+    private static PageCount count =new PageCount();
 
-    private String url;
-    private List<PageCount> listPage;
-    private boolean hasSuccess;
+    private PageCount(){}
 
-    public String getUrl() {
-        return url;
+    private int successNum;
+    private int failNum;
+    private int all;
+
+
+    private int fileSuccessNum;
+    private int fileFailNum;
+    private int fileAll;
+
+
+
+
+
+    public static PageCount getCount(){
+        return count;
     }
 
-    public void setUrl(String url) {
-        this.url = url;
+    public synchronized void addSuccess(){
+        this.successNum++;
     }
 
-    public List<PageCount> getListPage() {
-        return listPage;
+    public synchronized void addFail(){
+        this.failNum++;
     }
 
-    public void setListPage(List<PageCount> listPage) {
-        this.listPage = listPage;
+    public synchronized void addAll(int num){
+        this.all += num;
+    }
+    public int getSuccessNum() {
+        return successNum;
     }
 
-    public boolean isHasSuccess() {
-        return hasSuccess;
+    public int getFailNum() {
+        return failNum;
     }
 
-    public void setHasSuccess(boolean hasSuccess) {
-        this.hasSuccess = hasSuccess;
+    public int getAll() {
+        return all;
     }
+
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        PageCount pageCount = (PageCount) o;
-
-        return url.equals(pageCount.url);
-    }
-
-    @Override
-    public int hashCode() {
-        return url.hashCode();
+    public String toString() {
+        return "PageCount{" +
+                "successNum=" + successNum +
+                ", failNum=" + failNum +
+                ", all=" + all +
+                '}';
     }
 }

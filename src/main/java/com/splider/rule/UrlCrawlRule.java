@@ -12,15 +12,15 @@ public class UrlCrawlRule {
     private Map<String,String> extend;
     private Map<String,String> values;
     private List<UrlCrawlRule> children;
-    private List<String> imgUrl;
+    private Map<String,List<String>> imgUrl;
     private int status=0;
 
 
-    public List<String> getImgUrl() {
+    public Map<String, List<String>> getImgUrl() {
         return imgUrl;
     }
 
-    public void setImgUrl(List<String> imgUrl) {
+    public void setImgUrl(Map<String, List<String>> imgUrl) {
         this.imgUrl = imgUrl;
     }
 

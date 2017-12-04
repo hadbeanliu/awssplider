@@ -22,7 +22,6 @@ public class HtmlParser {
         if(filter.filter(rule.getUrl())) {
             Worker task = new Worker(rule);
             CrawlTaskExecutor.getInstance().execute(task);
-            System.out.println("------------");
 
         } else {
 
@@ -40,7 +39,7 @@ public class HtmlParser {
         List<Entity> entities=new ArrayList<Entity>();
         entities.add(new Entity("","li.elNext a","abs:href",CrawlType.FLIP));
         entities.add(new Entity("","div#itmlst li dt a","abs:href",CrawlType.LIST));
-        entities.add(new Entity("catalog","div#TopSPathList1 li:last-child strong",null,CrawlType.CONTENT));
+//        entities.add(new Entity("catalog","div#TopSPathList1 li:last-child strong",null,CrawlType.CONTENT));
         firstUrl.setEntities(entities);
         parser.parser(firstUrl);
 

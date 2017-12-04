@@ -3,9 +3,11 @@ package com.splider.crowler;
 import com.splider.rule.CrawlType;
 import com.splider.rule.Entity;
 import com.splider.rule.UrlCrawlRule;
+import com.splider.store.PageCount;
 import com.splider.utils.HtmlParser;
 import com.splider.utils.HtmlUtils;
 import org.jsoup.Jsoup;
+import org.jsoup.helper.StringUtil;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -18,6 +20,7 @@ import java.util.Map;
 
 public class Worker implements Runnable{
 
+    public static PageCount count =PageCount.getCount();
     private UrlCrawlRule rule;
 
     public Worker(UrlCrawlRule rule) {
@@ -28,40 +31,46 @@ public class Worker implements Runnable{
         sleep();
         try {
             Document doc = Jsoup.connect(rule.getUrl())
-                    .data("query", "Java")
-                    .userAgent("Mozilla")
-                    .cookie("auth", "token")
-                    .timeout(3000)
+                    .userAgent("Mozilla/5.0 (Windows NT 6.2; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/32.0.1667.0 Safari/537.36")
+                    .timeout(7000)
                     .get();
-            if(rule.getEntities()==null||rule.getEntities().size()==0){
-                return ;
-            }
             if(rule.getCrawlType() ==CrawlType.DETAIL){
                 try {
-                    extract(doc);
+                    rule.setValues(extract(doc));
+                    rule.setImgUrl(getImgs(doc));
                     rule.setStatus(1);
+                    count.addSuccess();
                     HistoryManager.getInstance(null).add(rule.getUrl(),1);
+                    System.out.println(count);
                     return;
                 }catch (Exception e){
                     e.printStackTrace();
                     rule.setStatus(2);
+                    count.addFail();
                     HistoryManager.getInstance(null).add(rule.getUrl(),2);
+                    System.out.println(count);
                     return;
                 }
             }
-
+            if(rule.getEntities()==null||rule.getEntities().size()==0){
+                return ;
+            }
             List<Entity> entities = rule.getEntities();
 
             for (Entity meta:entities){
                 CrawlType type = meta.getType();
                 switch (type){
                     case FLIP:{
-                        System.out.println(1);
                         System.out.println("翻页："+doc.select(meta.getQuery()).attr(meta.getAttr()));
+//                        HtmlUtils.getInstance().startCrawler();
+                        String url =doc.select(meta.getQuery()).attr(meta.getAttr());
+                        UrlCrawlRule newRule=new UrlCrawlRule(url,CrawlType.FLIP);
+                        newRule.setEntities(rule.getEntities());
+                        System.out.println(url);
+                        HtmlUtils.getInstance().startCrawl(newRule);
                         break;
                     }
                     case LIST:{
-                        System.out.println("2");
                         CrawlType newType=CrawlType.DETAIL;
                         String value = meta.getDefaultValue()==null?doc.select(meta.getQuery()).attr(meta.getAttr()):meta.getDefaultValue();
                         Elements elements=doc.select(meta.getQuery());
@@ -74,7 +83,9 @@ public class Worker implements Runnable{
                                 UrlCrawlRule child=new UrlCrawlRule(ele.attr(meta.getAttr()),newType);
                                 rule.getChildren().add(child);
                             }
-                            HtmlUtils.getInstance().startCrawler(rule.getChildren());
+                            HtmlUtils.getInstance().startCrawl(rule.getChildren());
+                            count.addAll(rule.getChildren().size());
+                            System.out.println(count);
                         }
                         break;
                     }
@@ -195,7 +206,7 @@ public class Worker implements Runnable{
 
     private void sleep(){
         try {
-            Thread.sleep(400);
+            Thread.sleep(1500);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
