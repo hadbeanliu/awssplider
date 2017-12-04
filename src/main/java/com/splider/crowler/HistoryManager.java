@@ -1,5 +1,7 @@
 package com.splider.crowler;
 
+import com.splider.store.PageCount;
+
 import java.util.Hashtable;
 import java.util.Map;
 
@@ -9,6 +11,7 @@ public class HistoryManager {
     private Map<String,Integer> hisDate=new Hashtable<String, Integer>();
     private static HistoryManager hismgr = new HistoryManager();
     private static String DATA_PATH = "/default-config.properties";
+
     private HistoryManager(){}
     public static HistoryManager getInstance(String path) {
 

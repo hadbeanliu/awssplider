@@ -15,28 +15,30 @@ public class HtmlUtils {
     private HtmlParser parser =new HtmlParser();
     private static HtmlUtils htmlUtils=new HtmlUtils();
     public static void main(String[] args){
-        try {
-            Document doc = Jsoup.connect("https://store.shopping.yahoo.co.jp/allhqfashion/yogapants0002.html#")
-                    .data("query", "Java")
-                    .userAgent("Mozilla")
-                    .cookie("auth", "token")
-                    .timeout(3000)
-                    .get();
-            System.out.println(doc.select("div#TopSPathList1 a:gt(0)"));
-        }catch(IOException e){
-            e.printStackTrace();
-        }
+//        try {
+//            Document doc = Jsoup.connect("https://store.shopping.yahoo.co.jp/allhqfashion/yogapants0002.html#")
+//                    .data("query", "Java")
+//                    .userAgent("Mozilla")
+//                    .cookie("auth", "token")
+//                    .timeout(3000)
+//                    .get();
+//            System.out.println(doc.select("div#TopSPathList1 a:gt(0)"));
+//        }catch(IOException e){
+//            e.printStackTrace();
+//        }
+
+
     }
     private HtmlUtils(){}
 
     public static HtmlUtils getInstance(){
         return htmlUtils;
     }
-    public void starCrawler(UrlCrawlRule rule){
+    public void startCrawl(UrlCrawlRule rule){
         parser.parser(rule);
     }
 
-    public void startCrawler(List<UrlCrawlRule> rules){
+    public void startCrawl(List<UrlCrawlRule> rules){
         parser.parser(rules);
     }
 
