@@ -1,5 +1,6 @@
 package test;
 
+import com.splider.feature.Charts;
 import com.splider.rule.Entity;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -24,7 +25,8 @@ public class CrawlerTest {
                     .get();
             CrawlerTest test=new CrawlerTest();
 
-            System.out.println(doc.select("div#CentItemCaption1 center img"));
+            System.out.println(doc.select("div#bclst a span").last().text());
+            System.out.println(Charts.getCharts().get(doc.select("div#bclst a span").last().text()));
 //            for()
 
 //            System.out.println(test.extract(doc).get("relevant-links"));

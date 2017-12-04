@@ -11,7 +11,7 @@ import java.util.List;
 
 public class Fields implements Cloneable{
 
-    private Cell[] cols;
+    private String[] cols;
     private static String templateFilePath="/csv_yahoo_lefutur.xls";
 //    private static
 
@@ -24,7 +24,11 @@ public class Fields implements Cloneable{
         try {
             Workbook worker=Workbook.getWorkbook(getClass().getResourceAsStream("/csv_yahoo_lefutur.xls"));
             Sheet template=worker.getSheets()[0];
-            cols = template.getRow(0);
+            Cell[] tempCol=template.getRow(0);
+            cols =new String[tempCol.length];
+            for(int i=0;i<tempCol.length;i++){
+                cols[i] =  tempCol[i].getContents();
+            }
             worker.close();
         } catch (IOException e) {
             e.printStackTrace();
@@ -40,11 +44,11 @@ public class Fields implements Cloneable{
 
     }
 
-    public Cell[] getCols() {
+    public String[] getCols() {
         return cols;
     }
 
-    public void setCols(Cell[] cols) {
+    public void setCols(String[] cols) {
         this.cols = cols;
     }
 

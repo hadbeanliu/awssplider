@@ -21,7 +21,6 @@ public class HtmlParser {
         if(filter.filter(rule.getUrl())) {
             Worker task = new Worker(rule);
             CrawlTaskExecutor.getInstance().execute(task);
-
         } else {
 
         }

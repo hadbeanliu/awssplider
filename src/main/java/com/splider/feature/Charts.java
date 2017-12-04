@@ -30,13 +30,14 @@ public class Charts {
         try {
             Workbook worker=Workbook.getWorkbook(getClass().getResourceAsStream(PropertiesMgr.get("chart.dir")));
             Sheet sheet=worker.getSheets()[0];
+            int count=0;
             Cell[] code= sheet.getColumn(0);
-            Cell[] name= sheet.getColumn(1);
-            System.out.println(code.length+"--"+name.length);
-            System.out.println(code[0].getContents()+":"+name[0].getContents());
+            Cell[] name= sheet.getColumn(2);
             int length = Math.min(code.length,name.length);
-            for(int i=1;i<length;i++)
-                tableMap.put(name[i].getContents().trim(),code[i].getContents());
+            for(int i=1;i<length;i++){
+                String[] categorys= name[i].getContents().split(">");
+                tableMap.put(categorys[categorys.length-1].trim(),code[i].getContents());
+            }
             worker.close();
         } catch (IOException e) {
             e.printStackTrace();
@@ -51,10 +52,12 @@ public class Charts {
         return tableMap.get(key);
     }
 
+    //https://store.shopping.yahoo.co.jp/allhqfashion/light0005.html
+    //找不到
     public static void main(String[] args){
         Charts chart=Charts.getCharts();
 //        " スポーツ >  アウトドア "
-        System.out.println(chart.get("ショートパンツ"));
+        System.out.println(chart.get("家具、インテリア"));
     }
 
 }

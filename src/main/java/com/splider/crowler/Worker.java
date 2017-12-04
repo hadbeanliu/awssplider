@@ -1,10 +1,13 @@
 package com.splider.crowler;
 
+import com.splider.feature.Charts;
 import com.splider.rule.CrawlType;
 import com.splider.rule.Entity;
 import com.splider.rule.UrlCrawlRule;
 import com.splider.store.PageCount;
 import com.splider.utils.HtmlUtils;
+import com.splider.utils.PropertiesMgr;
+import com.splider.utils.XLSOperater;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -41,14 +44,20 @@ public class Worker implements Runnable{
                     rule.setImgUrl(getImgs(doc));
                     rule.setStatus(1);
                     count.addSuccess();
+                    XLSOperater.getXlsWrite().add(rule.getValues());
+                    XLSOperater.getXlsWrite().output(count);
                     HistoryManager.getInstance(null).add(rule.getUrl(),1);
                     System.out.println(count);
-                    Map<String,List<String>> imgs=getImgs(doc);
+                    String prefix=rule.getValues().get("code");
+                    String suffix = PropertiesMgr.get("img.suffix");
+                    Map<String,List<String>> imgs=rule.getImgUrl();
                     for(String k:imgs.keySet()){
-                        String path=System.getProperty("user.dir")+"/img/"+k+"_";
+                        String path=System.getProperty("user.dir")+"/img/"+k+"/";
                         List<String> imgList=imgs.get(k);
+                        int i=1;
                         for(String url:imgList){
-                            downImages(path,url);
+                            downImages(path,prefix+"-"+i+suffix,url);
+                            i++;
                         }
                     }
                     return;
@@ -126,6 +135,12 @@ public class Worker implements Runnable{
             }
         }catch(IOException e){
             e.printStackTrace();
+            System.out.println(rule.getUrl());
+            HistoryManager.getInstance(null).add(rule.getUrl(),2);
+            if(rule.getCrawlType() == CrawlType.DETAIL){
+                System.out.println(rule.getUrl());
+                count.addFail();
+            }
         }
         System.out.println("个数："+(rule.getChildren()==null ?0:rule.getChildren().size()));
         if(rule.getValues()!=null)
@@ -161,10 +176,11 @@ public class Worker implements Runnable{
         values.put("relevant-links",listToString(doc.select("tr.ptData a"),"abs:href","\n", Entity.ValueType.LIST));
         values.put("meta-desc",doc.select("meta[name=keywords]").attr("content"));
         values.put("meta-key",values.get("meta-desc"));
-        values.put("meta-key",doc.select("p.elHour span span").text());
         values.put("delivery","1");
         values.put("astk-code","0");
         values.put("condition","0");
+
+        values.put("product-category", Charts.getCharts().get(doc.select("div#bclst a span").last().text()));
 //        values.put("headline",doc.select("div#itmrvw span").text());
 
         return values;
@@ -173,8 +189,8 @@ public class Worker implements Runnable{
         Map<String,List<String>> imgs=new HashMap<>();
 //        List<String> urls=listToList(doc.select("div.elThumbnail ul li.elList a img"),"src", Entity.ValueType.LIST);
 //        System.out.println(urls);
-        imgs.put("mainImg",listToList(doc.select("div.elThumbnail ul li.elList a img"),"src", Entity.ValueType.LIST));
-        imgs.put("detailImg",listToList(doc.select("div#CentItemCaption1 center img"),"data-original", Entity.ValueType.LIST));
+        imgs.put("主图",listToList(doc.select("div.elThumbnail ul li.elList a img"),"src", Entity.ValueType.LIST));
+        imgs.put("详情图",listToList(doc.select("div#CentItemCaption1 center noscript img"),"src", Entity.ValueType.LIST));
 
         return  imgs;
     }
@@ -223,9 +239,16 @@ public class Worker implements Runnable{
             e.printStackTrace();
         }
     }
+    private void imgSleep(){
+        try {
+            Thread.sleep(Long.parseLong(PropertiesMgr.get("download.sleep.time","200")));
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
 
-    public void downImages(String filePath,String imgUrl) throws UnsupportedEncodingException {
-
+    public void downImages(String filePath,String name,String imgUrl) throws UnsupportedEncodingException {
+        imgSleep();
         //图片url中的前面部分：例如"http://images.csdn.net/"
         String beforeUrl = imgUrl.substring(0,imgUrl.lastIndexOf("/")+1);
         //图片url中的后面部分：例如“20150529/PP6A7429_副本1.jpg”
@@ -251,7 +274,7 @@ public class Worker implements Runnable{
             //获取链接的输出流
             InputStream is = connection.getInputStream();
             //创建文件，fileName为编码之前的文件名
-            File file = new File(filePath + fileName);
+            File file = new File(filePath + name);
             //根据输入流写入文件
             FileOutputStream out = new FileOutputStream(file);
             int i = 0;
@@ -270,7 +293,7 @@ public class Worker implements Runnable{
         String url ="https://51.photoup-pro.com/up/2520668352/20171202-30f5koe6s4w/if8dlvcqg0x4w.jpg";
         Worker worker=new Worker(null);
         try {
-            worker.downImages("/home/hadoop/Downloads",url);
+            worker.downImages("/home/hadoop/Downloads","dd",url);
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
