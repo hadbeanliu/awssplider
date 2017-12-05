@@ -1,5 +1,6 @@
 package com.splider.rule;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -91,5 +92,17 @@ public class UrlCrawlRule {
 
     public void setChildren(List<UrlCrawlRule> children) {
         this.children = children;
+    }
+
+    public static  UrlCrawlRule build(String url,CrawlType type){
+        UrlCrawlRule rule=new UrlCrawlRule(url,type);
+        if(type == CrawlType.FLIP){
+        List<Entity> entities=new ArrayList<Entity>();
+        entities.add(new Entity("","li.elNext a","abs:href",CrawlType.FLIP));
+        entities.add(new Entity("","div#itmlst li dt a","abs:href",CrawlType.LIST));
+//        entities.add(new Entity("catalog","div#TopSPathList1 li:last-child strong",null,CrawlType.CONTENT));
+        rule.setEntities(entities);
+        }
+        return rule;
     }
 }

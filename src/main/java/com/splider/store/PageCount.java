@@ -1,10 +1,13 @@
 package com.splider.store;
 
+import view.controller.CrawlerController;
+
 import java.util.List;
 
 public class PageCount {
 
     private static PageCount count =new PageCount();
+
 
     private PageCount(){}
 

@@ -1,4 +1,4 @@
-package com.splider.controller;
+package view.controller;
 
 import javafx.fxml.Initializable;
 

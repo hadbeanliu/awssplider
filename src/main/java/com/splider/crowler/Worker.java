@@ -84,7 +84,6 @@ public class Worker implements Runnable{
                         String url =doc.select(meta.getQuery()).attr(meta.getAttr());
                         UrlCrawlRule newRule=new UrlCrawlRule(url,CrawlType.FLIP);
                         newRule.setEntities(rule.getEntities());
-                        System.out.println(url);
                         HtmlUtils.getInstance().startCrawl(newRule);
                         break;
                     }
