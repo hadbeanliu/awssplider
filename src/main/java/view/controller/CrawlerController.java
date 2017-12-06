@@ -5,6 +5,8 @@ import com.splider.rule.CrawlType;
 import com.splider.rule.UrlCrawlRule;
 import com.splider.store.PageCount;
 import com.splider.utils.HtmlUtils;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
@@ -15,6 +17,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
+import javafx.util.Duration;
 
 import java.net.URL;
 import java.util.Random;
@@ -36,24 +39,14 @@ public class CrawlerController implements Initializable{
     private Label success;
     @FXML
     private Label all;
-    Random r=new Random();
+
     @FXML
     public void startCrawlerAction(ActionEvent event){
-        System.out.println("coming here!!!!");
-        System.out.println(url.getText());
-        System.out.println(isAll.isSelected());
-        progress.setProgress(0.5);
-//        startCrawler.setDisable(true);
-        startCrawler.setText("...");
-//        this.progress.setProgress(r.nextDouble());
-//        success.setText(r.nextInt(10) + "");
-//        all.setText(r.nextInt(50)+"");
-//        count.addAll(10);
+        startCrawler.setText("抓取中...");
+        startCrawler.setDisable(true);
         Platform.runLater(() -> {
-            UrlCrawlRule rule=UrlCrawlRule.build(url.getText(),isAll.isSelected()? CrawlType.DETAIL:CrawlType.FLIP);
+            UrlCrawlRule rule=UrlCrawlRule.build(url.getText(),isAll.isSelected()? CrawlType.FLIP:CrawlType.DETAIL);
             HtmlUtils.getInstance().startCrawl(rule);
-//            count.addAll(10);
-
         });
         //https://store.shopping.yahoo.co.jp/allhqfashion/a5dba1bca5.html
 //        Platform.runLater(() -> {
@@ -81,7 +74,7 @@ public class CrawlerController implements Initializable{
         success.setText(count.getSuccessNum() + "");
         all.setText(count.getAll()+"");
         double rate = count.getAll()==0? 0:(count.getSuccessNum() * 1.0 / count.getAll());
-        System.out.println(count.getSuccessNum()+":" + rate);
+//        System.out.println(count.getSuccessNum()+":" + rate);
         progress.setProgress(rate);
     }
 
@@ -110,6 +103,19 @@ public class CrawlerController implements Initializable{
     }
 
     public void initialize(URL location, ResourceBundle resources) {
-
+        Timeline timeline = new Timeline(new KeyFrame(
+                Duration.millis(1000),
+                ae -> {
+                    success.setText(count.getSuccessNum() + "");
+                    all.setText(count.getAll()+"");
+                    double rate = count.getAll()==0? 0:((count.getSuccessNum()+count.getFailNum()) * 1.0 / count.getAll());
+                    progress.setProgress(rate);
+                    if(rate >= 1){
+                        startCrawler.setText("开始");
+                        startCrawler.setDisable(false);
+                    }
+                }));
+        timeline.setCycleCount(Integer.MAX_VALUE);
+        timeline.play();
     }
 }

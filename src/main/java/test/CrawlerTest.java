@@ -25,7 +25,7 @@ public class CrawlerTest {
                     .get();
             CrawlerTest test=new CrawlerTest();
 
-            System.out.println(doc.select("div#bclst a span").last().text());
+            System.out.println(doc.select("div#CentItemCaption1 img.lazy").attr("data-original"));
             System.out.println(Charts.getCharts().get(doc.select("div#bclst a span").last().text()));
 //            for()
 

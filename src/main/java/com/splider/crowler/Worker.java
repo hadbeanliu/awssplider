@@ -15,6 +15,7 @@ import org.jsoup.select.Elements;
 
 import java.io.*;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -42,24 +43,32 @@ public class Worker implements Runnable{
                 try {
                     rule.setValues(extract(doc));
                     rule.setImgUrl(getImgs(doc));
-                    rule.setStatus(1);
-                    count.addSuccess();
-                    XLSOperater.getXlsWrite().add(rule.getValues());
-                    XLSOperater.getXlsWrite().output(count);
                     HistoryManager.getInstance(null).add(rule.getUrl(),1);
-                    System.out.println(count);
                     String prefix=rule.getValues().get("code");
                     String suffix = PropertiesMgr.get("img.suffix");
+                    XLSOperater.getXlsWrite().add(rule.getValues());
                     Map<String,List<String>> imgs=rule.getImgUrl();
                     for(String k:imgs.keySet()){
                         String path=System.getProperty("user.dir")+"/img/"+k+"/";
                         List<String> imgList=imgs.get(k);
                         int i=1;
-                        for(String url:imgList){
-                            downImages(path,prefix+"-"+i+suffix,url);
-                            i++;
+                        if(imgList ==null){
+                            System.out.println(k+":"+rule.getUrl());
+                        }else {
+                            for (String url : imgList) {
+                                try {
+                                    downImages(path, prefix + "-" + i + suffix, url);
+                                    i++;
+                                } catch (Exception e) {
+                                    System.out.println(k+":no found:"+url+" from:"+rule.getUrl());
+                                    e.printStackTrace();
+                                }
+                            }
                         }
                     }
+                    rule.setStatus(1);
+                    count.addSuccess();
+                    System.out.println(count);
                     return;
                 }catch (Exception e){
                     e.printStackTrace();
@@ -107,7 +116,6 @@ public class Worker implements Runnable{
                         break;
                     }
                     case CONTENT:{
-                        System.out.println("3");
                         Map<String,String> values = rule.getValues()==null?new HashMap<String,String>():rule.getValues();
                         Elements eles =doc.select(meta.getQuery());
                         if(meta.getValueType() == Entity.ValueType.LIST){
@@ -140,10 +148,9 @@ public class Worker implements Runnable{
                 System.out.println(rule.getUrl());
                 count.addFail();
             }
+        }finally {
+            XLSOperater.getXlsWrite().output(count);
         }
-        System.out.println("个数："+(rule.getChildren()==null ?0:rule.getChildren().size()));
-        if(rule.getValues()!=null)
-            System.out.println("val:"+rule.getValues());
 
     }
     public UrlCrawlRule getRule() {
@@ -189,7 +196,7 @@ public class Worker implements Runnable{
 //        List<String> urls=listToList(doc.select("div.elThumbnail ul li.elList a img"),"src", Entity.ValueType.LIST);
 //        System.out.println(urls);
         imgs.put("主图",listToList(doc.select("div.elThumbnail ul li.elList a img"),"src", Entity.ValueType.LIST));
-        imgs.put("详情图",listToList(doc.select("div#CentItemCaption1 center noscript img"),"src", Entity.ValueType.LIST));
+        imgs.put("详情图",listToList(doc.select("div#CentItemCaption1 img.lazy"),"data-original", Entity.ValueType.LIST));
 
         return  imgs;
     }
@@ -215,7 +222,6 @@ public class Worker implements Runnable{
             StringBuffer sb=new StringBuffer();
             int size = eles.size();
             int i = 1;
-            System.out.println(i+"-"+size);
             for(Element e:eles){
                 if(attr==null) {
                     sb.append(e.text());
@@ -233,7 +239,7 @@ public class Worker implements Runnable{
 
     private void sleep(){
         try {
-            Thread.sleep(1500);
+            Thread.sleep(Integer.parseInt(PropertiesMgr.get("min.sleep.time","1500")));
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -246,7 +252,7 @@ public class Worker implements Runnable{
         }
     }
 
-    public void downImages(String filePath,String name,String imgUrl) throws UnsupportedEncodingException {
+    public void downImages(String filePath,String name,String imgUrl) throws IOException {
         imgSleep();
         //图片url中的前面部分：例如"http://images.csdn.net/"
         String beforeUrl = imgUrl.substring(0,imgUrl.lastIndexOf("/")+1);
@@ -259,7 +265,7 @@ public class Worker implements Runnable{
         //编码之后的url
         imgUrl = beforeUrl + newFileName;
 
-        try {
+
             //创建文件目录
             File files = new File(filePath);
             if (!files.exists()) {
@@ -267,35 +273,50 @@ public class Worker implements Runnable{
             }
             //获取下载地址
             System.out.println("------------"+imgUrl);
-            URL url = new URL(imgUrl);
-            //链接网络地址
+        URL url = null;
+        FileOutputStream out =null;
+        InputStream is =null;
+        try {
+            url = new URL(imgUrl);
+
+        //链接网络地址
             HttpURLConnection connection = (HttpURLConnection)url.openConnection();
             //获取链接的输出流
-            InputStream is = connection.getInputStream();
+            is = connection.getInputStream();
             //创建文件，fileName为编码之前的文件名
             File file = new File(filePath + name);
             //根据输入流写入文件
-            FileOutputStream out = new FileOutputStream(file);
+            out = new FileOutputStream(file);
             int i = 0;
             while((i = is.read()) != -1){
                 out.write(i);
             }
             out.close();
             is.close();
-        } catch (Exception e) {
+        } catch (MalformedURLException e) {
             e.printStackTrace();
+        } finally {
+            try {
+                if(out!=null)
+                  out.close();
+                if(is!=null)
+                  is.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
+
     }
 
 
     public static void main(String[] args){
         String url ="https://51.photoup-pro.com/up/2520668352/20171202-30f5koe6s4w/if8dlvcqg0x4w.jpg";
         Worker worker=new Worker(null);
-        try {
-            worker.downImages("/home/hadoop/Downloads","dd",url);
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
+//        try {
+////            worker.downImages("/home/hadoop/Downloads","dd",url);
+//        } catch (UnsupportedEncodingException e) {
+//            e.printStackTrace();
+//        }
 
     }
 }

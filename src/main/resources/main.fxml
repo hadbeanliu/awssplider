@@ -10,7 +10,6 @@
 <GridPane fx:controller="view.controller.CrawlerController"
           xmlns:fx="http://javafx.com/fxml" alignment="BASELINE_LEFT" hgap="10" vgap="10"
           styleClass="root">
-
     <padding>
         <Insets top="25" right="25" bottom="10" left="25" />
     </padding>
@@ -25,15 +24,14 @@
            GridPane.rowIndex="1" />
 
     <TextField fx:id="url" prefWidth="350" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-    <RadioButton fx:id="isAll" GridPane.columnIndex="2" GridPane.rowIndex="1" selected="true" text="是否为详情页"/>
+    <RadioButton fx:id="isAll" GridPane.columnIndex="2" GridPane.rowIndex="1" selected="true" text="是否为列表页"/>
 
     <HBox  spacing="10" alignment="bottom_right" GridPane.columnIndex="2"
            GridPane.rowIndex="4">
     </HBox>
     <HBox spacing="10" alignment="bottom_right" GridPane.columnIndex="1"
           GridPane.rowIndex="5">
-        <Button fx:id="startCrawler" text="start" onAction="#startCrawlerAction" />
-        <Button text="refresh" onAction="#refresh" />
+        <Button fx:id="startCrawler" text="开始" onAction="#startCrawlerAction" />
     </HBox>
 
     <HBox alignment="bottom_left" GridPane.columnIndex="1"
@@ -50,9 +48,7 @@
 
 
     <fx:script>
-        function handleSubmitButtonAction() {
-            actiontarget.setText("Calling the JavaScript");
-        }
+
          </fx:script>
 
 
