@@ -16,14 +16,6 @@ public class PageCount {
     private int all;
 
 
-    private int fileSuccessNum;
-    private int fileFailNum;
-    private int fileAll;
-
-
-
-
-
     public static PageCount getCount(){
         return count;
     }
@@ -49,6 +41,12 @@ public class PageCount {
 
     public int getAll() {
         return all;
+    }
+
+    public void clear(){
+        this.all=0;
+        this.successNum=0;
+        this.failNum=0;
     }
 
 

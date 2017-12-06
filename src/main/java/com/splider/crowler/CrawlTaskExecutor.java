@@ -1,6 +1,8 @@
 package com.splider.crowler;
 
+import com.splider.rule.CrawlType;
 import com.splider.rule.UrlCrawlRule;
+import com.splider.store.PageCount;
 import com.splider.utils.PropertiesMgr;
 
 import java.util.Hashtable;
@@ -31,6 +33,8 @@ public class CrawlTaskExecutor{
         if(hismgr.hasCrawl(task.getRule().getUrl())){
             System.out.println("be slate");
             return ;
+        } else if(task.getRule().getCrawlType() == CrawlType.DETAIL){
+            PageCount.getCount().addAll(1);
         }
         threadPool.execute(task);
     }

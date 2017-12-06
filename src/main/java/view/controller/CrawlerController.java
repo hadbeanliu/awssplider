@@ -1,6 +1,5 @@
 package view.controller;
 
-import com.gargoylesoftware.htmlunit.Page;
 import com.splider.rule.CrawlType;
 import com.splider.rule.UrlCrawlRule;
 import com.splider.store.PageCount;
@@ -8,11 +7,6 @@ import com.splider.utils.HtmlUtils;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
-import javafx.beans.InvalidationListener;
-import javafx.beans.Observable;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.css.SimpleStyleableObjectProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -20,7 +14,6 @@ import javafx.scene.control.*;
 import javafx.util.Duration;
 
 import java.net.URL;
-import java.util.Random;
 import java.util.ResourceBundle;
 
 public class CrawlerController implements Initializable{
@@ -44,6 +37,7 @@ public class CrawlerController implements Initializable{
     public void startCrawlerAction(ActionEvent event){
         startCrawler.setText("抓取中...");
         startCrawler.setDisable(true);
+        count.clear();
         Platform.runLater(() -> {
             UrlCrawlRule rule=UrlCrawlRule.build(url.getText(),isAll.isSelected()? CrawlType.FLIP:CrawlType.DETAIL);
             HtmlUtils.getInstance().startCrawl(rule);
@@ -76,10 +70,6 @@ public class CrawlerController implements Initializable{
         double rate = count.getAll()==0? 0:(count.getSuccessNum() * 1.0 / count.getAll());
 //        System.out.println(count.getSuccessNum()+":" + rate);
         progress.setProgress(rate);
-    }
-
-    public ProgressBar getShedule() {
-        return progress;
     }
 
     public void setShedule(ProgressBar progress) {
