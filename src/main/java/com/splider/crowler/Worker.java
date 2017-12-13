@@ -13,7 +13,10 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -42,26 +45,29 @@ public class Worker implements Runnable{
             if(rule.getCrawlType() ==CrawlType.DETAIL){
                 try {
                     rule.setValues(extract(doc));
-                    rule.setImgUrl(getImgs(doc));
+
                     HistoryManager.getInstance(null).add(rule.getUrl(),1);
                     String prefix=rule.getValues().get("code");
                     String suffix = PropertiesMgr.get("img.suffix");
                     XLSOperater.getXlsWrite().add(rule.getValues());
                     Map<String,List<String>> imgs=rule.getImgUrl();
-                    for(String k:imgs.keySet()){
-                        String path=System.getProperty("user.dir")+"/img/"+k+"/";
-                        List<String> imgList=imgs.get(k);
-                        int i=1;
-                        if(imgList ==null){
-                            System.out.println(k+":"+rule.getUrl());
-                        }else {
-                            for (String url : imgList) {
-                                try {
-                                    downImages(path, prefix + "-" + i + suffix, url);
-                                    i++;
-                                } catch (Exception e) {
-                                    System.out.println(k+":no found:"+url+" from:"+rule.getUrl());
-                                    e.printStackTrace();
+                    if(PropertiesMgr.getInt("download",0)==1){
+                        rule.setImgUrl(getImgs(doc));
+                        for(String k:imgs.keySet()){
+                            String path=System.getProperty("user.dir")+"/img/"+k+"/";
+                            List<String> imgList=imgs.get(k);
+                            int i=1;
+                            if(imgList ==null){
+                                System.out.println(k+":"+rule.getUrl());
+                            }else {
+                                for (String url : imgList) {
+                                    try {
+                                        downImages(path, prefix + "-" + i + suffix, url);
+                                        i++;
+                                    } catch (Exception e) {
+                                        System.out.println(k+":no found:"+url+" from:"+rule.getUrl());
+                                        e.printStackTrace();
+                                    }
                                 }
                             }
                         }
@@ -110,7 +116,6 @@ public class Worker implements Runnable{
                                 rule.getChildren().add(child);
                             }
                             HtmlUtils.getInstance().startCrawl(rule.getChildren());
-                            count.addAll(rule.getChildren().size());
                             System.out.println(count);
                         }
                         break;

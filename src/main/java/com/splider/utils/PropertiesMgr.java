@@ -27,6 +27,12 @@ public class PropertiesMgr {
         }
         return props;
     }
+
+    public static int getInt(String key,int defaultValue){
+        String value= mgr.getProps().getProperty(key);
+        return value ==null? defaultValue:Integer.parseInt(value);
+    }
+
     public static String get(String key){
         return mgr.getProps().getProperty(key);
     }

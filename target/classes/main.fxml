@@ -7,10 +7,9 @@
 <?import javafx.scene.text.*?>
 
 <!-- fx:controller="com.chu.helloworld.FXMLExampleController" -->
-<GridPane fx:controller="com.splider.controller.CrawlerController"
-          xmlns:fx="http://javafx.com/fxml" alignment="center" hgap="10" vgap="10"
+<GridPane fx:controller="view.controller.CrawlerController"
+          xmlns:fx="http://javafx.com/fxml" alignment="BASELINE_LEFT" hgap="10" vgap="10"
           styleClass="root">
-
     <padding>
         <Insets top="25" right="25" bottom="10" left="25" />
     </padding>
@@ -21,20 +20,29 @@
     <Text id="welcome-text" text="Welcome" GridPane.columnIndex="0"
           GridPane.rowIndex="0" GridPane.columnSpan="2" />
 
-    <Label text="User Name:" GridPane.columnIndex="0"
+    <Label text="起始地址:" GridPane.columnIndex="0"
            GridPane.rowIndex="1" />
 
-    <TextField GridPane.columnIndex="1" GridPane.rowIndex="1" />
+    <TextField fx:id="url" prefWidth="350" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+    <HBox alignment="bottom_left" GridPane.columnIndex="1"
+           GridPane.rowIndex="3">
+        <RadioButton fx:id="isAll"  selected="true" text="是否为列表页"/>
 
-    <Label text="Password:" GridPane.columnIndex="0"
-           GridPane.rowIndex="2" />
+        <RadioButton fx:id="download" selected="true" text="是否下载图片"/>
 
-    <PasswordField GridPane.columnIndex="1"
-                   GridPane.rowIndex="2" />
-
+    </HBox>
     <HBox spacing="10" alignment="bottom_right" GridPane.columnIndex="1"
-          GridPane.rowIndex="4">
-        <Button text="Sign In" onAction="#startCrawlerAction" />
+          GridPane.rowIndex="5">
+        <Button fx:id="startCrawler" text="开始" onAction="#startCrawlerAction" />
+    </HBox>
+
+    <HBox alignment="bottom_left" GridPane.columnIndex="1"
+          GridPane.rowIndex="6">
+        <Label text="采集进度："/>
+        <ProgressBar fx:id="progress" prefWidth="200" progress="0"/>
+        <Label fx:id="success" text="0"/>
+        <Label text="/"/>
+        <Label fx:id="all" text="0"/>
     </HBox>
 
     <Text fx:id="actiontarget" GridPane.columnIndex="0"
@@ -42,9 +50,7 @@
 
 
     <fx:script>
-        function handleSubmitButtonAction() {
-            actiontarget.setText("Calling the JavaScript");
-        }
+
          </fx:script>
 
 

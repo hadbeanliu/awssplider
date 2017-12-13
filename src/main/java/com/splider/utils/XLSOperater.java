@@ -2,9 +2,11 @@ package com.splider.utils;
 
 import com.splider.feature.Fields;
 import com.splider.store.PageCount;
-import jxl.Cell;
 import jxl.Workbook;
-import jxl.write.*;
+import jxl.write.Label;
+import jxl.write.WritableSheet;
+import jxl.write.WritableWorkbook;
+import jxl.write.WriteException;
 import jxl.write.biff.RowsExceededException;
 
 import java.io.File;
@@ -33,7 +35,7 @@ public class XLSOperater {
                     return o1.get("path").compareTo(o2.get("path"));
                 }
             });
-            SimpleDateFormat format=new SimpleDateFormat("YYYY-MM-dd HH:mm:ss");
+            SimpleDateFormat format=new SimpleDateFormat("YYYY-MM-dd HH-mm");
             String path=System.getProperty("user.dir")+"/"+format.format(new Date())+".xls";
             WritableWorkbook wwk=null;
             try {

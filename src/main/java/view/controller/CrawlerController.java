@@ -4,6 +4,7 @@ import com.splider.rule.CrawlType;
 import com.splider.rule.UrlCrawlRule;
 import com.splider.store.PageCount;
 import com.splider.utils.HtmlUtils;
+import com.splider.utils.PropertiesMgr;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
@@ -27,6 +28,8 @@ public class CrawlerController implements Initializable{
     @FXML
     private RadioButton isAll;
     @FXML
+    private RadioButton download;
+    @FXML
     private ProgressBar progress;
     @FXML
     private Label success;
@@ -38,6 +41,9 @@ public class CrawlerController implements Initializable{
         startCrawler.setText("抓取中...");
         startCrawler.setDisable(true);
         count.clear();
+        if(download.isSelected()){
+            PropertiesMgr.set("download.file","1");
+        }
         Platform.runLater(() -> {
             UrlCrawlRule rule=UrlCrawlRule.build(url.getText(),isAll.isSelected()? CrawlType.FLIP:CrawlType.DETAIL);
             HtmlUtils.getInstance().startCrawl(rule);
