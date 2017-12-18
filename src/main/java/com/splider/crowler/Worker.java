@@ -50,9 +50,8 @@ public class Worker implements Runnable{
                     String prefix=rule.getValues().get("code");
                     String suffix = PropertiesMgr.get("img.suffix");
                     XLSOperater.getXlsWrite().add(rule.getValues());
-                    Map<String,List<String>> imgs=rule.getImgUrl();
-                    if(PropertiesMgr.getInt("download",0)==1){
-                        rule.setImgUrl(getImgs(doc));
+                    if(PropertiesMgr.getInt("download.file",0)==1){
+                        Map<String,List<String>> imgs=getImgs(doc);
                         for(String k:imgs.keySet()){
                             String path=System.getProperty("user.dir")+"/img/"+k+"/";
                             List<String> imgList=imgs.get(k);
@@ -62,7 +61,7 @@ public class Worker implements Runnable{
                             }else {
                                 for (String url : imgList) {
                                     try {
-                                        downImages(path, prefix + "-" + i + suffix, url);
+                                        downImages(path, prefix + "_" + i + suffix, url);
                                         i++;
                                     } catch (Exception e) {
                                         System.out.println(k+":no found:"+url+" from:"+rule.getUrl());
@@ -174,6 +173,19 @@ public class Worker implements Runnable{
         values.put("price",doc.select("span.elNum").text().replace(",",""));
         values.put("sale-price",doc.select("span.elNum").text().replace(",",""));
         StringBuffer sb=new StringBuffer();
+        Elements table = doc.select("div.elItem table");
+        if(table.size()>0){
+
+            String[] rowcol = table.select("caption").text().split("×");
+            if(rowcol.length== 2){
+                sb.append(rowcol[1]).append(" ").append(listToString(table.select("thead span"),null," ",Entity.ValueType.LIST)).append("\n\n\n");
+                sb.append(rowcol[0]).append(" ").append(listToString(table.select("tbody th span"),null," ",Entity.ValueType.LIST)).append("\n\n\n");
+
+            }else if(rowcol.length== 1){
+                sb.append(rowcol[0]).append(" ").append(listToString(table.select("tbody th span"),null," ",Entity.ValueType.LIST));
+                sb.append("\n\n\n");
+            }
+        }
         for(Element e:doc.select("div#option select")){
             sb.append(e.attr("name")).append(" ").append(listToString(e.children(),null," ",Entity.ValueType.LIST));
             sb.append("\n\n\n");

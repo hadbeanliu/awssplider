@@ -15,7 +15,7 @@ public class CrawlerTest {
 
     public static void main(String[] args){
         //https://store.shopping.yahoo.co.jp/allhqfashion/a5dba1bca5.html
-        String url ="https://store.shopping.yahoo.co.jp/allhqfashion/yoga0005.html";
+        String url ="https://store.shopping.yahoo.co.jp/vernal/14953.html?sc_i=shp_pc_top_mdIPM_disp_mcad";
         try {
             Document doc = Jsoup.connect(url)
                     .data("query", "Java")
@@ -25,8 +25,39 @@ public class CrawlerTest {
                     .get();
             CrawlerTest test=new CrawlerTest();
 
-            System.out.println(doc.select("div#CentItemCaption1 img.lazy").attr("data-original"));
+
+
+
+            StringBuffer sb=new StringBuffer();
+            Elements table = doc.select("div.elItem table");
+            System.out.println(doc.select("div#bclst a span").last().text());
             System.out.println(Charts.getCharts().get(doc.select("div#bclst a span").last().text()));
+//            if(table.size()>0){
+//
+//                String[] rowcol = table.select("caption").text().split("×");
+//                if(rowcol.length== 2){
+//                    sb.append(rowcol[1]).append(" ").append(listToString(table.select("thead span"),null," ",Entity.ValueType.LIST)).append("\n\n\n");
+//                    sb.append(rowcol[0]).append(" ").append(listToString(table.select("tbody th span"),null," ",Entity.ValueType.LIST)).append("\n\n\n");
+//
+//                }else if(rowcol.length== 1){
+//                    sb.append(rowcol[0]).append(" ").append(listToString(table.select("tbody th span"),null," ",Entity.ValueType.LIST));
+//                    sb.append("\n\n\n");
+//                }
+//
+//
+//            }
+
+            System.out.println(sb.toString());
+
+
+//            for(Element e:doc.select("div#option select")){
+//                sb.append(e.attr("name")).append(" ").append(listToString(e.children(),null," ",Entity.ValueType.LIST));
+//                sb.append("\n\n\n");
+////            System.out.println(sb.toString());
+//            }
+//            values.put("options",sb.toString().trim());
+
+
 //            for()
 
 //            System.out.println(test.extract(doc).get("relevant-links"));
@@ -71,13 +102,12 @@ public class CrawlerTest {
 
         return values;
     }
-    private String listToString(Elements eles, String attr, String speractor, Entity.ValueType valueType){
+    private static String listToString(Elements eles, String attr, String speractor, Entity.ValueType valueType){
 
         if(valueType == Entity.ValueType.LIST){
             StringBuffer sb=new StringBuffer();
             int size = eles.size();
             int i = 1;
-            System.out.println(i+"-"+size);
             for(Element e:eles){
                 if(attr==null) {
                     sb.append(e.text());

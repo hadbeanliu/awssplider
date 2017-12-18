@@ -57,7 +57,7 @@ public class Charts {
     public static void main(String[] args){
         Charts chart=Charts.getCharts();
 //        " スポーツ >  アウトドア "
-        System.out.println(chart.get("家具、インテリア"));
+        System.out.println(chart.get("せっけん"));
     }
 
 }

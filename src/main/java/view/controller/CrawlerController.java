@@ -43,6 +43,8 @@ public class CrawlerController implements Initializable{
         count.clear();
         if(download.isSelected()){
             PropertiesMgr.set("download.file","1");
+        }else {
+            PropertiesMgr.set("download.file","0");
         }
         Platform.runLater(() -> {
             UrlCrawlRule rule=UrlCrawlRule.build(url.getText(),isAll.isSelected()? CrawlType.FLIP:CrawlType.DETAIL);
