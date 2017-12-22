@@ -49,19 +49,22 @@ public class Worker implements Runnable{
                     HistoryManager.getInstance(null).add(rule.getUrl(),1);
                     String prefix=rule.getValues().get("code");
                     String suffix = PropertiesMgr.get("img.suffix");
-                    XLSOperater.getXlsWrite().add(rule.getValues());
                     if(PropertiesMgr.getInt("download.file",0)==1){
                         Map<String,List<String>> imgs=getImgs(doc);
                         for(String k:imgs.keySet()){
                             String path=System.getProperty("user.dir")+"/img/"+k+"/";
                             List<String> imgList=imgs.get(k);
-                            int i=1;
+                            int i=0;
                             if(imgList ==null){
                                 System.out.println(k+":"+rule.getUrl());
                             }else {
                                 for (String url : imgList) {
                                     try {
-                                        downImages(path, prefix + "_" + i + suffix, url);
+                                        if(i > 0 ){
+                                          downImages(path, prefix + "_" + i + suffix, url);
+                                        }else {
+                                            downImages(path, prefix + suffix, url);
+                                        }
                                         i++;
                                     } catch (Exception e) {
                                         System.out.println(k+":no found:"+url+" from:"+rule.getUrl());
@@ -71,6 +74,7 @@ public class Worker implements Runnable{
                             }
                         }
                     }
+                    XLSOperater.getXlsWrite().add(rule.getValues());
                     rule.setStatus(1);
                     count.addSuccess();
                     System.out.println(count);
@@ -153,7 +157,7 @@ public class Worker implements Runnable{
                 count.addFail();
             }
         }finally {
-            XLSOperater.getXlsWrite().output(count);
+            XLSOperater.getXlsWrite().output(count,false);
         }
 
     }
@@ -213,7 +217,7 @@ public class Worker implements Runnable{
 //        List<String> urls=listToList(doc.select("div.elThumbnail ul li.elList a img"),"src", Entity.ValueType.LIST);
 //        System.out.println(urls);
         imgs.put("主图",listToList(doc.select("div.elThumbnail ul li.elList a img"),"src", Entity.ValueType.LIST));
-        imgs.put("详情图",listToList(doc.select("div#CentItemCaption1 img.lazy"),"data-original", Entity.ValueType.LIST));
+        imgs.put("详情图",listToList(doc.select("div#CenterTop img.lazy"),"data-original", Entity.ValueType.LIST));
 
         return  imgs;
     }
@@ -289,17 +293,19 @@ public class Worker implements Runnable{
                 files.mkdirs();
             }
             //获取下载地址
-            System.out.println("------------"+imgUrl);
         URL url = null;
         FileOutputStream out =null;
         InputStream is =null;
         try {
             url = new URL(imgUrl);
-
         //链接网络地址
+            System.out.println("img:"+imgUrl);
             HttpURLConnection connection = (HttpURLConnection)url.openConnection();
+            connection.setConnectTimeout(20000);
+            connection.setReadTimeout(30000);
             //获取链接的输出流
             is = connection.getInputStream();
+
             //创建文件，fileName为编码之前的文件名
             File file = new File(filePath + name);
             //根据输入流写入文件

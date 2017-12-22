@@ -38,6 +38,9 @@ public class CrawlTaskExecutor{
         }
         threadPool.execute(task);
     }
+    public void shutDownImmediately(){
+        threadPool.shutdownNow();
+    }
     public void shutDown(){
         threadPool.shutdown();
         while(true){

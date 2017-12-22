@@ -8,14 +8,16 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class CrawlerTest {
 
     public static void main(String[] args){
         //https://store.shopping.yahoo.co.jp/allhqfashion/a5dba1bca5.html
-        String url ="https://store.shopping.yahoo.co.jp/vernal/14953.html?sc_i=shp_pc_top_mdIPM_disp_mcad";
+        String url ="https://store.shopping.yahoo.co.jp/egoal/cot-p-5.html";
         try {
             Document doc = Jsoup.connect(url)
                     .data("query", "Java")
@@ -26,12 +28,10 @@ public class CrawlerTest {
             CrawlerTest test=new CrawlerTest();
 
 
-
-
             StringBuffer sb=new StringBuffer();
-            Elements table = doc.select("div.elItem table");
-            System.out.println(doc.select("div#bclst a span").last().text());
-            System.out.println(Charts.getCharts().get(doc.select("div#bclst a span").last().text()));
+//            Elements table = doc.select("div.elItem table");
+            System.out.println(test.listToList(doc.select("div#CentItemCaption1 img.lazy"),"data-original", Entity.ValueType.LIST));
+//            System.out.println(Charts.getCharts().get(doc.select("div#bclst a span").last().text()));
 //            if(table.size()>0){
 //
 //                String[] rowcol = table.select("caption").text().split("×");
@@ -101,6 +101,23 @@ public class CrawlerTest {
 
 
         return values;
+    }
+
+    private List<String> listToList(Elements eles, String attr, Entity.ValueType valueType){
+
+        int size =eles.size();
+        if(size!=0&&valueType == Entity.ValueType.LIST){
+            List<String> imgUrls=new ArrayList<>();
+
+            int i =0;
+            for(Element e:eles){
+                if(attr==null)
+                    imgUrls.add(e.text());
+                else imgUrls.add(e.attr(attr));
+            }
+            return imgUrls;
+        }
+        return null;
     }
     private static String listToString(Elements eles, String attr, String speractor, Entity.ValueType valueType){
 

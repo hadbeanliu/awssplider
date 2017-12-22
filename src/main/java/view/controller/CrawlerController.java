@@ -1,10 +1,12 @@
 package view.controller;
 
+import com.splider.crowler.CrawlTaskExecutor;
 import com.splider.rule.CrawlType;
 import com.splider.rule.UrlCrawlRule;
 import com.splider.store.PageCount;
 import com.splider.utils.HtmlUtils;
 import com.splider.utils.PropertiesMgr;
+import com.splider.utils.XLSOperater;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
@@ -24,6 +26,8 @@ public class CrawlerController implements Initializable{
     @FXML
     private Button startCrawler;
     @FXML
+    private Button stopCrawler;
+    @FXML
     private TextField url;
     @FXML
     private RadioButton isAll;
@@ -40,6 +44,7 @@ public class CrawlerController implements Initializable{
     public void startCrawlerAction(ActionEvent event){
         startCrawler.setText("抓取中...");
         startCrawler.setDisable(true);
+        stopCrawler.setDisable(false);
         count.clear();
         if(download.isSelected()){
             PropertiesMgr.set("download.file","1");
@@ -70,7 +75,16 @@ public class CrawlerController implements Initializable{
 
 //        System.out.println("---------------????----------");
     }
-
+    @FXML
+    public void stopCrawlerAction(ActionEvent event){
+        stopCrawler.setDisable(true);
+        stopCrawler.setText(".....");
+        CrawlTaskExecutor.getInstance().shutDownImmediately();
+        XLSOperater.getXlsWrite().output(null,true);
+        stopCrawler.setText("强制停止");
+        startCrawler.setText("开始");
+        startCrawler.setDisable(false);
+    }
     public void refresh(ActionEvent event){
 
         success.setText(count.getSuccessNum() + "");
