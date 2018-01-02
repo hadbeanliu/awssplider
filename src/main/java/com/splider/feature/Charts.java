@@ -6,13 +6,19 @@ import jxl.Sheet;
 import jxl.Workbook;
 import jxl.read.biff.BiffException;
 
+import java.io.BufferedReader;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Map;
 
 public class Charts {
 
     private Map<String,String> tableMap=new HashMap<>();
+
+    private Map<String,String> colorMap=new HashMap<>();
+
     private static Charts charts;
 
     public static Charts getCharts(){
@@ -26,7 +32,11 @@ public class Charts {
         init();
     }
 
+    public String translate(String str){
+        return colorMap.getOrDefault(str,str);
+    }
     private void init(){
+        BufferedReader reader =null;
         try {
             Workbook worker=Workbook.getWorkbook(getClass().getResourceAsStream(PropertiesMgr.get("chart.dir")));
             Sheet sheet=worker.getSheets()[0];
@@ -39,6 +49,15 @@ public class Charts {
                 tableMap.put(categorys[categorys.length-1].trim(),code[i].getContents());
             }
             worker.close();
+
+            reader = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(PropertiesMgr.get("zh.ja.dir"))));
+            String tmp =null;
+            while ((tmp =reader.readLine())!=null) {
+                String[] col = tmp.split(" ");
+                colorMap.put(col[1],col[0]);
+            }
+
+            reader.close();
         } catch (IOException e) {
             e.printStackTrace();
         } catch (BiffException e) {

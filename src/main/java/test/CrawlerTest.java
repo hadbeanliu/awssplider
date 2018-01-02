@@ -2,6 +2,7 @@ package test;
 
 import com.splider.feature.Charts;
 import com.splider.rule.Entity;
+import jdk.nashorn.internal.parser.JSONParser;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -15,9 +16,10 @@ import java.util.Map;
 
 public class CrawlerTest {
 
+
     public static void main(String[] args){
         //https://store.shopping.yahoo.co.jp/allhqfashion/a5dba1bca5.html
-        String url ="https://store.shopping.yahoo.co.jp/egoal/cot-p-5.html";
+        String url ="https://detail.1688.com/offer/563342356040.html?spm=a312h.7841636.1998813769.d_pic_8.NJPRnV";
         try {
             Document doc = Jsoup.connect(url)
                     .data("query", "Java")
@@ -28,9 +30,11 @@ public class CrawlerTest {
             CrawlerTest test=new CrawlerTest();
 
 
-            StringBuffer sb=new StringBuffer();
+            System.out.println(test.extract(doc));
+
+//            System.out.println(test.extract(doc));
+
 //            Elements table = doc.select("div.elItem table");
-            System.out.println(test.listToList(doc.select("div#CentItemCaption1 img.lazy"),"data-original", Entity.ValueType.LIST));
 //            System.out.println(Charts.getCharts().get(doc.select("div#bclst a span").last().text()));
 //            if(table.size()>0){
 //
@@ -47,7 +51,6 @@ public class CrawlerTest {
 //
 //            }
 
-            System.out.println(sb.toString());
 
 
 //            for(Element e:doc.select("div#option select")){
@@ -71,23 +74,31 @@ public class CrawlerTest {
 
     private Map<String,String> extract(Document doc){
         Map<String,String> values=new HashMap<String, String>();
-        values.put("path",listToString(doc.select("div#TopSPathList1 li:gt(0) a"),null,":", Entity.ValueType.LIST));
-        values.put("name",doc.select("div.mdItemInfoTitle h2").text());
-        values.put("code",doc.select("div#abuserpt p:last-child").text().substring(6));
-        values.put("sub-code","");
-        values.put("price",doc.select("span.elNum").text().replace(",",""));
-        values.put("sale-price",doc.select("span.elNum").text().replace(",",""));
-        StringBuffer sb=new StringBuffer();
-        for(Element e:doc.select("div#option select")){
-            sb.append(e.attr("name")).append(" ").append(listToString(e.children(),null," ",Entity.ValueType.LIST));
-            sb.append("\n\n\n");
-//            System.out.println(sb.toString());
+//        values.put("path",listToString(doc.select("h1.d-title"),null,":", Entity.ValueType.LIST));
+        values.put("name",doc.select("h1.d-title").text());
+        values.put("originprice", doc.select("span.value price-length-5").text().trim());
+        values.put("transprice", doc.select("div.cost-entries-type p em.value").text().trim());
+        values.put("sale-price", String.valueOf(Double.valueOf(values.getOrDefault("originprice","0"))+Double.valueOf(values.getOrDefault("transprice","0"))));
+        StringBuffer options=new StringBuffer();
+        if(doc.select("div.obj-content ul.list-leading li") !=null){
+            options.append("カラー ");
+            String[] colors =doc.select("div.obj-content ul.list-leading li").text().split(" ");
+            if(colors.length > 0){
+                for (String str:colors)
+                    options.append(Charts.getCharts().translate(str)).append(" ");
+            }
+            options.append("\n");
         }
-        values.put("options",sb.toString().trim());
-        values.put("headline",doc.select("div.mdItemInfoCatch strong").text());
+        if(doc.select("div.obj-sku table.table-sku  td.name")!=null){
+            String cata = doc.select("div.obj-sku div.obj-header").text();
+            if(cata.equals("尺码"))
+                options.append("サイズ ");
+            else options.append(cata).append(" ");
+            options.append(listToString(doc.select("div.obj-sku table.table-sku  td.name"),null," ", Entity.ValueType.LIST)).append("\n");
+        }
+        values.put("options",options.toString().trim());
         values.put("caption",doc.select("div#CentItemCaption1 img").toString());
-        values.put("abstract",doc.select("div.mdItemInfoTitle ul").text());
-        values.put("explanation",doc.select("div.mdItemInfoLead").text());
+        values.put("explanation",doc.select("div#desc-lazyload-container").text());
         values.put("relevant-links",listToString(doc.select("tr.ptData a"),"abs:href","\n", Entity.ValueType.LIST));
         values.put("meta-desc",doc.select("meta[name=keywords]").attr("content"));
         values.put("meta-key",values.get("meta-desc"));
