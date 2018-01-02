@@ -44,12 +44,14 @@ public class Worker implements Runnable{
                     .get();
             if(rule.getCrawlType() ==CrawlType.DETAIL){
                 try {
+                    // extract importance message
                     rule.setValues(extract(doc));
 
                     HistoryManager.getInstance(null).add(rule.getUrl(),1);
                     String prefix=rule.getValues().get("code");
                     String suffix = PropertiesMgr.get("img.suffix");
                     if(PropertiesMgr.getInt("download.file",0)==1){
+                        StringBuffer caption=new StringBuffer();
                         Map<String,List<String>> imgs=getImgs(doc);
                         for(String k:imgs.keySet()){
                             String path=System.getProperty("user.dir")+"/img/"+k+"/";
@@ -60,11 +62,15 @@ public class Worker implements Runnable{
                             }else {
                                 for (String url : imgList) {
                                     try {
+                                        String index="";
                                         if(i > 0 ){
-                                          downImages(path, prefix + "_" + i + suffix, url);
+                                          index =   prefix + "_" + i + suffix;
                                         }else {
-                                            downImages(path, prefix + suffix, url);
+                                            index =   prefix + suffix;
                                         }
+                                        downImages(path,index,url);
+                                        if(k.equals("详情图"))
+                                            caption.append("<img src=\"https://shopping.c.yimg.jp/lib/lefutur/").append(index).append("  width=\"100%\" alt = \"\"  style=\"margin-top:10px;\" >\n");
                                         i++;
                                     } catch (Exception e) {
                                         System.out.println(k+":no found:"+url+" from:"+rule.getUrl());
@@ -73,6 +79,9 @@ public class Worker implements Runnable{
                                 }
                             }
                         }
+                        System.out.println(caption);
+                        if(caption.length()>0)
+                            rule.getValues().put("caption",caption.toString());
                     }
                     XLSOperater.getXlsWrite().add(rule.getValues());
                     rule.setStatus(1);
@@ -197,7 +206,6 @@ public class Worker implements Runnable{
         }
         values.put("options",sb.toString().trim());
         values.put("headline",doc.select("div.mdItemInfoCatch strong").text());
-        values.put("caption",doc.select("div#CentItemCaption1 img").toString());
         values.put("abstract",doc.select("div.mdItemInfoTitle ul").text());
         values.put("explanation",doc.select("div.mdItemInfoLead").text());
         values.put("relevant-links",listToString(doc.select("tr.ptData a"),"abs:href","\n", Entity.ValueType.LIST));
