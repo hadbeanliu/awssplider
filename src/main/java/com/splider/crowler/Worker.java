@@ -180,13 +180,14 @@ public class Worker implements Runnable{
 
         values.put("sale-price", String.valueOf(Double.valueOf(values.getOrDefault("originprice","0"))+Double.valueOf(values.getOrDefault("transprice","0"))));
         StringBuffer options=new StringBuffer();
-        if(doc.select("div.obj-content ul.list-leading li") !=null){
+        if(doc.select("div.unit-detail-spec-operator") !=null){
             options.append("カラー ");
-            List<String> colors =listToList(doc.select("div.obj-content ul.list-leading li a.image"),"title", Entity.ValueType.LIST);
+            List<String> colors =listToList(doc.select("div.unit-detail-spec-operator"),"data-unit-config", Entity.ValueType.LIST);
             if(colors.size() > 0){
                 for (String str:colors){
-                    options.append(Charts.getCharts().translate(str)).append(" ");
-                };
+                    JSONObject obj = new JSONObject(str);
+                    options.append(Charts.getCharts().translate(obj.getString("name"))).append(" ");
+                }
             }
             options.append("\n");
         }
@@ -264,8 +265,6 @@ public class Worker implements Runnable{
         int size =eles.size();
         if(size!=0&&valueType == Entity.ValueType.LIST){
             List<String> imgUrls=new ArrayList<>();
-
-            int i =0;
             for(Element e:eles){
                 if(attr==null)
                    imgUrls.add(e.text());

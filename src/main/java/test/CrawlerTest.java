@@ -27,15 +27,16 @@ public class CrawlerTest {
 
     public static void main(String[] args){
         //https://store.shopping.yahoo.co.jp/allhqfashion/a5dba1bca5.html
-        String url ="https://zudele.1688.com/page/offerlist_87935940_26152260.htm?spm=a2615.7691481.0.0.1b3dbb2ecdWjxf";
+        String url ="https://detail.1688.com/offer/561383079508.html?spm=a2615.7691456.0.0.739693ec5lxs0n";
         try {
             Document doc = Jsoup.connect(url)
                     .userAgent("Mozilla/5.0 (Windows NT 6.2; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/32.0.1667.0 Safari/537.36")
                     .timeout(7000)
                     .get();
             CrawlerTest test=new CrawlerTest();
-            System.out.println(listToString(doc.select("ul.offer-list-row div.title a"),"href","\n", Entity.ValueType.LIST)
-            );
+
+            System.out.println(test.extract(doc));
+
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -50,14 +51,14 @@ public class CrawlerTest {
         values.put("name",doc.select("h1.d-title").text());
         values.put("sale-price", String.valueOf(Double.valueOf(values.getOrDefault("originprice","0"))+Double.valueOf(values.getOrDefault("transprice","0"))));
         StringBuffer options=new StringBuffer();
-        if(doc.select("div.obj-content ul.list-leading li") !=null){
+        if(doc.select("div.unit-detail-spec-operator") !=null){
             options.append("カラー ");
-            List<String> colors =listToList(doc.select("div.obj-content ul.list-leading li a.image"),"title", Entity.ValueType.LIST);
+            List<String> colors =listToList(doc.select("div.unit-detail-spec-operator"),"data-unit-config", Entity.ValueType.LIST);
             if(colors.size() > 0){
                 for (String str:colors){
-                    System.out.println(str);
-                    options.append(Charts.getCharts().translate(str)).append(" ");
-                };
+                    JSONObject obj = new JSONObject(str);
+                    options.append(Charts.getCharts().translate(obj.getString("name"))).append(" ");
+                }
             }
             options.append("\n");
         }
