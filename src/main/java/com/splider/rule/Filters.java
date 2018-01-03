@@ -46,11 +46,11 @@ public class Filters{
     }
     public boolean filter(String str) {
         for(Filter filter:filters){
-            if(!filter.filter(str))
-                return false;
+            if(filter.filter(str))
+                return true;
         }
 
-        return true;
+        return false;
     }
 
     public static void main(String[] args){

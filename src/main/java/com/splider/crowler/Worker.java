@@ -8,23 +8,19 @@ import com.splider.store.PageCount;
 import com.splider.utils.HtmlUtils;
 import com.splider.utils.PropertiesMgr;
 import com.splider.utils.XLSOperater;
+import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLEncoder;
+import java.io.*;
+import java.net.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class Worker implements Runnable{
 
@@ -178,54 +174,88 @@ public class Worker implements Runnable{
         this.rule = rule;
     }
     private Map<String,String> extract(Document doc){
+
         Map<String,String> values=new HashMap<String, String>();
-        values.put("path",listToString(doc.select("div#TopSPathList1 li:gt(0) a"),null,":", Entity.ValueType.LIST));
-        values.put("name",doc.select("div.mdItemInfoTitle h2").text());
-        values.put("code",doc.select("div#abuserpt p:last-child").text().substring(6));
-        values.put("sub-code","");
-        values.put("price",doc.select("span.elNum").text().replace(",",""));
-        values.put("sale-price",doc.select("span.elNum").text().replace(",",""));
-        StringBuffer sb=new StringBuffer();
-        Elements table = doc.select("div.elItem table");
-        if(table.size()>0){
+        values.put("name",doc.select("h1.d-title").text());
 
-            String[] rowcol = table.select("caption").text().split("×");
-            if(rowcol.length== 2){
-                sb.append(rowcol[1]).append(" ").append(listToString(table.select("thead span"),null," ",Entity.ValueType.LIST)).append("\n\n\n");
-                sb.append(rowcol[0]).append(" ").append(listToString(table.select("tbody th span"),null," ",Entity.ValueType.LIST)).append("\n\n\n");
-
-            }else if(rowcol.length== 1){
-                sb.append(rowcol[0]).append(" ").append(listToString(table.select("tbody th span"),null," ",Entity.ValueType.LIST));
-                sb.append("\n\n\n");
+        values.put("sale-price", String.valueOf(Double.valueOf(values.getOrDefault("originprice","0"))+Double.valueOf(values.getOrDefault("transprice","0"))));
+        StringBuffer options=new StringBuffer();
+        if(doc.select("div.obj-content ul.list-leading li") !=null){
+            options.append("カラー ");
+            List<String> colors =listToList(doc.select("div.obj-content ul.list-leading li a.image"),"title", Entity.ValueType.LIST);
+            if(colors.size() > 0){
+                for (String str:colors){
+                    options.append(Charts.getCharts().translate(str)).append(" ");
+                };
             }
+            options.append("\n");
         }
-        for(Element e:doc.select("div#option select")){
-            sb.append(e.attr("name")).append(" ").append(listToString(e.children(),null," ",Entity.ValueType.LIST));
-            sb.append("\n\n\n");
-//            System.out.println(sb.toString());
+        if(doc.select("div.obj-sku table.table-sku  td.name")!=null){
+            String cata = doc.select("div.obj-sku div.obj-header").text();
+            if(cata.equals("尺码"))
+                options.append("サイズ ");
+            else options.append(cata).append(" ");
+            options.append(listToString(doc.select("div.obj-sku table.table-sku  td.name"),null," ", Entity.ValueType.LIST)).append("\n");
         }
-        values.put("options",sb.toString().trim());
-        values.put("headline",doc.select("div.mdItemInfoCatch strong").text());
-        values.put("abstract",doc.select("div.mdItemInfoTitle ul").text());
-        values.put("explanation",doc.select("div.mdItemInfoLead").text());
+        URL url =null;
+        try {
+            String baseUrl = doc.baseUri();
+            String itemId = baseUrl.substring(baseUrl.indexOf("offer")+6,baseUrl.indexOf(".html"));
+            url = new URL("https://laputa.1688.com/offer/ajax/widgetList.do?callback=jQuery&blocks=&data=offerdetail_ditto_title%2Cofferdetail_common_report%2Cofferdetail_ditto_serviceDesc%2Cofferdetail_ditto_preferential%2Cofferdetail_ditto_postage%2Cofferdetail_ditto_offerSatisfaction%2Cofferdetail_w1190_guarantee%2Cofferdetail_w1190_tradeWay%2Cofferdetail_w1190_samplePromotion&offerId="+itemId);
+            URLConnection conn = url.openConnection();
+            InputStream in = conn.getInputStream();
+            StringWriter writer=new StringWriter();
+            org.apache.commons.io.IOUtils.copy(in,writer,"GBK");
+            String content = writer.toString();
+            String json = content.substring(9,content.length()-1);
+            JSONObject obj =new JSONObject(json);
+            JSONObject priceObj = obj.getJSONObject("data").getJSONObject("data").getJSONObject("offerdetail_ditto_postage");
+            double tranPrice = priceObj.getJSONArray("freightCost").getJSONObject(0).getDouble("totalCost");
+            double perPrice = Double.parseDouble(priceObj.getString("price"));
+            values.put("sale-price", String.valueOf(tranPrice+perPrice));
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        values.put("options",options.toString().trim());
+        values.put("caption",doc.select("div#CentItemCaption1 img").toString());
+        values.put("explanation",doc.select("div#desc-lazyload-container").text());
         values.put("relevant-links",listToString(doc.select("tr.ptData a"),"abs:href","\n", Entity.ValueType.LIST));
         values.put("meta-desc",doc.select("meta[name=keywords]").attr("content"));
         values.put("meta-key",values.get("meta-desc"));
+        values.put("meta-key",doc.select("p.elHour span span").text());
         values.put("delivery","1");
         values.put("astk-code","0");
         values.put("condition","0");
 
-        values.put("product-category", Charts.getCharts().get(doc.select("div#bclst a span").last().text()));
+
 //        values.put("headline",doc.select("div#itmrvw span").text());
+
 
         return values;
     }
     private Map<String,List<String>> getImgs(Document doc){
         Map<String,List<String>> imgs=new HashMap<>();
-//        List<String> urls=listToList(doc.select("div.elThumbnail ul li.elList a img"),"src", Entity.ValueType.LIST);
-//        System.out.println(urls);
-        imgs.put("主图",listToList(doc.select("div.elThumbnail ul li.elList a img"),"src", Entity.ValueType.LIST));
-        imgs.put("详情图",listToList(doc.select("div#CenterTop img.lazy"),"data-original", Entity.ValueType.LIST));
+//        values.put("explanation",doc.select("div#desc-lazyload-container").text());
+
+        List<String> mainImg = listToList(doc.select("div.vertical-img img"),"data-lazy-src", Entity.ValueType.LIST);
+        mainImg.remove(0);
+        mainImg.stream().map(url -> url.replace(".60x60","")).collect(Collectors.toList());
+        imgs.put("主图",mainImg.stream().map(url -> url.replace(".60x60","")).collect(Collectors.toList()));
+        String deTailUrl = doc.select("div#desc-lazyload-container").attr("data-tfs-url");
+        try {
+            Document detail = Jsoup.connect(deTailUrl)
+                    .userAgent("Mozilla/5.0 (Windows NT 6.2; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/32.0.1667.0 Safari/537.36")
+                    .timeout(7000)
+                    .get();
+            List<String> detailImg = listToList(detail.select("img"),"src", Entity.ValueType.LIST).stream().map(url -> url.replace("\\\"","").replace("\"","")).collect(Collectors.toList());
+            imgs.put("详情图",detailImg);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
 
         return  imgs;
     }

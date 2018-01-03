@@ -98,8 +98,8 @@ public class UrlCrawlRule {
         UrlCrawlRule rule=new UrlCrawlRule(url,type);
         if(type == CrawlType.FLIP){
         List<Entity> entities=new ArrayList<Entity>();
-        entities.add(new Entity("","li.elNext a","abs:href",CrawlType.FLIP));
-        entities.add(new Entity("","div#itmlst li dt a","abs:href",CrawlType.LIST));
+        entities.add(new Entity("","a.next","abs:href",CrawlType.FLIP));
+        entities.add(new Entity("","ul.offer-list-row div.title a","abs:href",CrawlType.LIST));
 //        entities.add(new Entity("catalog","div#TopSPathList1 li:last-child strong",null,CrawlType.CONTENT));
         rule.setEntities(entities);
         }
