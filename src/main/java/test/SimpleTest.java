@@ -1,48 +1,18 @@
 package test;
 
-import com.splider.rule.Entity;
-import org.json.JSONObject;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import sun.misc.IOUtils;
-import sun.nio.ch.IOUtil;
-
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringWriter;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLConnection;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class SimpleTest {
 
     public static void main(String[] args) throws IOException {
-String htm ="<div id=\\\"offer-template-0\\\"></div><p style=\\\"text-align: center;\\\"><img alt=\\\"undefined\\\" height=\\\"296.25\\\" src=\\\"https://cbu01.alicdn.com/img/ibank/2017/194/089/4268980491_1036318609.jpg\\\" width=\\\"790\\\" /><br /><br /></p><p style=\\\"text-align: center;\\\">&nbsp;</p><p style=\\\"text-align: center;\\\"><img alt=\\\"undefined\\\" height=\\\"790\\\" src=\\\"https://cbu01.alicdn.com/img/ibank/2017/598/814/4621418895_1036318609.jpg\\\" width=\\\"790\\\" /></p><p style=\\\"text-align: center;\\\">&nbsp;</p><p style=\\\"text-align: center;\\\">&nbsp;</p><p style=\\\"text-align: center;\\\">&nbsp;</p><p style=\\\"text-align: center;\\\"><br /><br /><img alt=\\\"undefined\\\" height=\\\"888.75\\\" src=\\\"https://cbu01.alicdn.com/img/ibank/2017/371/263/4622362173_1036318609.jpg\\\" width=\\\"790\\\" /></p><p style=\\\"text-align: center;\\\">&nbsp;</p><p style=\\\"text-align: center;\\\">&nbsp;</p><p style=\\\"text-align: center;\\\"><br /><br /><img alt=\\\"undefined\\\" height=\\\"1009.225\\\" src=\\\"https://cbu01.alicdn.com/img/ibank/2017/345/791/5939197543_1036318609.jpg\\\" width=\\\"790\\\" /><br /><br /><br /><br /><br /><img alt=\\\"undefined\\\" height=\\\"790\\\" src=\\\"https://cbu01.alicdn.com/img/ibank/2017/122/733/4645337221_1036318609.jpg\\\" width=\\\"790\\\" /><br /><br /><img alt=\\\"undefined\\\" height=\\\"790\\\" src=\\\"https://cbu01.alicdn.com/img/ibank/2017/406/223/4645322604_1036318609.jpg\\\" width=\\\"790\\\" /><br /><br /><img alt=\\\"undefined\\\" height=\\\"790\\\" src=\\\"https://cbu01.alicdn.com/img/ibank/2017/838/613/4645316838_1036318609.jpg\\\" width=\\\"790\\\" /><br /><br /><br /></p><p style=\\\"text-align: center;\\\">&nbsp;<img alt=\\\"undefined\\\" height=\\\"790\\\" src=\\\"https://cbu01.alicdn.com/img/ibank/2017/400/671/4646176004_1036318609.jpg\\\" width=\\\"790\\\" /><br /><br /><img alt=\\\"undefined\\\" height=\\\"790\\\" src=\\\"https://cbu01.alicdn.com/img/ibank/2017/306/133/4645331603_1036318609.jpg\\\" width=\\\"790\\\" /><br /><br /></p><p style=\\\"text-align: center;\\\">&nbsp;</p><p style=\\\"text-align: center;\\\"><img alt=\\\"undefined\\\" height=\\\"790\\\" src=\\\"https://cbu01.alicdn.com/img/ibank/2017/170/971/4646179071_1036318609.jpg\\\" width=\\\"790\\\" /><br /><br />&nbsp;</p><p style=\\\"text-align: center;\\\"><img alt=\\\"undefined\\\" height=\\\"790\\\" src=\\\"https://cbu01.alicdn.com/img/ibank/2017/517/882/4624288715_1036318609.jpg\\\" width=\\\"790\\\" /><br /><br /></p><p style=\\\"text-align: center;\\\">&nbsp;</p><p style=\\\"text-align: center;\\\"><br /><img alt=\\\"undefined\\\" height=\\\"790\\\" src=\\\"https://cbu01.alicdn.com/img/ibank/2017/199/052/4625250991_1036318609.jpg\\\" width=\\\"790\\\" /></p><p style=\\\"text-align: center;\\\">&nbsp;</p><p style=\\\"text-align: center;\\\"><br /><br /><img alt=\\\"undefined\\\" height=\\\"790\\\" src=\\\"https://cbu01.alicdn.com/img/ibank/2017/684/952/4625259486_1036318609.jpg\\\" width=\\\"790\\\" /></p><p style=\\\"text-align: center;\\\">&nbsp;</p><p style=\\\"text-align: center;\\\"><br /><br /><img alt=\\\"undefined\\\" height=\\\"790\\\" src=\\\"https://cbu01.alicdn.com/img/ibank/2017/835/652/4625256538_1036318609.jpg\\\" width=\\\"790\\\" /></p><p style=\\\"text-align: center;\\\">&nbsp;</p><p style=\\\"text-align: center;\\\">&nbsp;</p><p><br /><img alt=\\\"undefined\\\" height=\\\"790\\\" src=\\\"https://cbu01.alicdn.com/img/ibank/2017/524/424/4621424425_1036318609.jpg\\\" width=\\\"790\\\" /></p><p>&nbsp;</p><p>&nbsp;</p><p><br /><img alt=\\\"undefined\\\" height=\\\"790\\\" src=\\\"https://cbu01.alicdn.com/img/ibank/2017/584/953/4622359485_1036318609.jpg\\\" width=\\\"790\\\" /></p><p>&nbsp;</p><p><br /><br /><img alt=\\\"undefined\\\" height=\\\"790\\\" src=\\\"https://cbu01.alicdn.com/img/ibank/2017/316/653/4622356613_1036318609.jpg\\\" width=\\\"790\\\" /></p><p>&nbsp;</p><p><br /><br /><img alt=\\\"undefined\\\" height=\\\"790\\\" src=\\\"https://cbu01.alicdn.com/img/ibank/2017/519/353/4622353915_1036318609.jpg\\\" width=\\\"790\\\" /><br /><br /></p><p>&nbsp;</p><p style=\\\"text-align: center;\\\">&nbsp;</p><p style=\\\"text-align: center;\\\">&nbsp;</p><p style=\\\"text-align: center;\\\">&nbsp;</p><p style=\\\"text-align: center;\\\"><img alt=\\\"undefined\\\" height=\\\"101.7125\\\" src=\\\"https://cbu01.alicdn.com/img/ibank/2017/212/874/4322478212_1036318609.jpg\\\" width=\\\"790\\\" /></p><p style=\\\"text-align: center;\\\">&nbsp;</p><p style=\\\"text-align: center;\\\">&nbsp;</p><p style=\\\"text-align: center;\\\">&nbsp;</p><p style=\\\"text-align: center;\\\">&nbsp;</p><p style=\\\"text-align: center;\\\">&nbsp;</p><p style=\\\"text-align: center;\\\"><img alt=\\\"undefined\\\" height=\\\"790\\\" src=\\\"https://cbu01.alicdn.com/img/ibank/2017/178/653/4622356871_1036318609.jpg\\\" width=\\\"790\\\" /></p><p style=\\\"text-align: center;\\\"><br /><br /><br /><img alt=\\\"undefined\\\" height=\\\"790\\\" src=\\\"https://cbu01.alicdn.com/img/ibank/2017/527/124/4621421725_1036318609.jpg\\\" width=\\\"790\\\" /></p><p style=\\\"text-align: center;\\\">&nbsp;</p><p style=\\\"text-align: center;\\\"><br /><br /><img alt=\\\"undefined\\\" height=\\\"790\\\" src=\\\"https://cbu01.alicdn.com/img/ibank/2017/762/862/4625268267_1036318609.jpg\\\" width=\\\"790\\\" /></p><p style=\\\"text-align: center;\\\">&nbsp;</p><p style=\\\"text-align: center;\\\"><br /><br /><img alt=\\\"undefined\\\" height=\\\"790\\\" src=\\\"https://cbu01.alicdn.com/img/ibank/2017/896/652/4625256698_1036318609.jpg\\\" width=\\\"790\\\" /></p><p style=\\\"text-align: center;\\\">&nbsp;</p><p style=\\\"text-align: center;\\\"><br /><br /><img alt=\\\"undefined\\\" height=\\\"790\\\" src=\\\"https://cbu01.alicdn.com/img/ibank/2017/925/262/4625262529_1036318609.jpg\\\" width=\\\"790\\\" /></p><p style=\\\"text-align: center;\\\">&nbsp;</p><p style=\\\"text-align: center;\\\"><br /><br /><img alt=\\\"undefined\\\" height=\\\"790\\\" src=\\\"https://cbu01.alicdn.com/img/ibank/2017/314/263/4622362413_1036318609.jpg\\\" width=\\\"790\\\" /></p><p style=\\\"text-align: center;\\\">&nbsp;</p><p style=\\\"text-align: center;\\\"><br /><br /><img alt=\\\"undefined\\\" height=\\\"790\\\" src=\\\"https://cbu01.alicdn.com/img/ibank/2017/931/473/4622374139_1036318609.jpg\\\" width=\\\"790\\\" /></p><p style=\\\"text-align: center;\\\">&nbsp;</p><p style=\\\"text-align: center;\\\"><br /><br /><img alt=\\\"undefined\\\" height=\\\"790\\\" src=\\\"https://cbu01.alicdn.com/img/ibank/2017/052/863/4622368250_1036318609.jpg\\\" width=\\\"790\\\" /></p><p style=\\\"text-align: center;\\\">&nbsp;</p><p style=\\\"text-align: center;\\\"><br /><br /><img alt=\\\"undefined\\\" height=\\\"790\\\" src=\\\"https://cbu01.alicdn.com/img/ibank/2017/532/173/4622371235_1036318609.jpg\\\" width=\\\"790\\\" /></p><p style=\\\"text-align: center;\\\">&nbsp;</p><p style=\\\"text-align: center;\\\"><br /><br /><img alt=\\\"undefined\\\" height=\\\"790\\\" src=\\\"https://cbu01.alicdn.com/img/ibank/2017/120/172/4625271021_1036318609.jpg\\\" width=\\\"790\\\" /></p><p style=\\\"text-align: center;\\\">&nbsp;</p><p style=\\\"text-align: center;\\\"><br /><br /><img alt=\\\"undefined\\\" height=\\\"790\\\" src=\\\"https://cbu01.alicdn.com/img/ibank/2017/875/424/4621424578_1036318609.jpg\\\" width=\\\"790\\\" /><br /><br /></p><p style=\\\"text-align: center;\\\"><img alt=\\\"undefined\\\" height=\\\"790\\\" src=\\\"https://cbu01.alicdn.com/img/ibank/2017/770/640/4628046077_1036318609.jpg\\\" width=\\\"790\\\" /><br /><br />&nbsp;</p><p style=\\\"text-align: center;\\\">&nbsp;</p><p style=\\\"text-align: center;\\\">&nbsp;</p><p style=\\\"text-align: center;\\\"><br /><br /><img alt=\\\"undefined\\\" height=\\\"296.25\\\" src=\\\"https://cbu01.alicdn.com/img/ibank/2017/038/746/6810647830_1036318609.jpg\\\" /><br /><br /></p><p style=\\\"text-align: center;\\\"><br /><br /><br /><br /><br /></p>";
-        Document doc=Jsoup.connect("https://img.alicdn.com/tfscom/TB1oU82X7fb_uJkSnb4XXXCrXXa").get();
-//        Document doc = Jsoup.parse(html);
-        CrawlerTest test=new CrawlerTest();
-        System.out.println(doc.text());
-        System.out.println(doc.select("img").size());
-        System.out.println(CrawlerTest.listToString(doc.select("img"),"src","\n", Entity.ValueType.LIST));
-//        URL url =null;
-//        try {
-//            url = new URL("");
-//            URLConnection conn = url.openConnection();
-//            InputStream in = conn.getInputStream();
-//            StringWriter writer=new StringWriter();
-//            org.apache.commons.io.IOUtils.copy(in,writer,"GBK");
-//            String content = writer.toString();
-//            String json = content.substring(9,content.length()-1);
-//            JSONObject obj =new JSONObject(json);
-//            JSONObject priceObj = obj.getJSONObject("data").getJSONObject("data").getJSONObject("offerdetail_ditto_postage");
-//            double tranPrice = priceObj.getJSONArray("freightCost").getJSONObject(0).getDouble("totalCost");
-//            double perPrice = Double.parseDouble(priceObj.getString("price"));
-//            System.out.println(tranPrice+"--"+perPrice);
-//        } catch (MalformedURLException e) {
-//            e.printStackTrace();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
 
+        AtomicInteger atomicInteger =new AtomicInteger();
+        for(int i =0;i<100;i++)
+            System.out.println(atomicInteger.getAndIncrement());
+
+        AtomicInteger atomicInteger2 =new AtomicInteger();
+        for(int i =0;i<100;i++)
+            System.out.println(atomicInteger2.getAndIncrement());
     }
 }

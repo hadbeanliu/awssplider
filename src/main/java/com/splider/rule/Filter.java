@@ -31,8 +31,6 @@ public class Filter {
     }
     public static void main(String[] args){
 
-
-
         Filter filter=new Filter(true,"1688.com");
         System.out.println(filter.filter("https://jiaoyanshu.1688.com/page/offerlist_6873430.htm?spm=a261y.7663282.0.0.74e4206cN5deNY"));
 

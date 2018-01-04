@@ -20,11 +20,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 public class Worker implements Runnable{
 
     public static PageCount count =PageCount.getCount();
+    public static AtomicInteger atomicInteger=new AtomicInteger();
     private UrlCrawlRule rule;
 
     public Worker(UrlCrawlRule rule) {
@@ -44,11 +46,11 @@ public class Worker implements Runnable{
                     rule.setValues(extract(doc));
 
                     HistoryManager.getInstance(null).add(rule.getUrl(),1);
-                    String prefix=rule.getValues().get("code");
+                    String prefix=rule.getValues().get("offerId");
                     String suffix = PropertiesMgr.get("img.suffix");
                     if(PropertiesMgr.getInt("download.file",0)==1){
                         StringBuffer caption=new StringBuffer();
-                        Map<String,List<String>> imgs=getImgs(doc);
+                        Map<String,List<String>> imgs=getImgs(doc,rule.getValues());
                         for(String k:imgs.keySet()){
                             String path=System.getProperty("user.dir")+"/img/"+k+"/";
                             List<String> imgList=imgs.get(k);
@@ -178,7 +180,6 @@ public class Worker implements Runnable{
         Map<String,String> values=new HashMap<String, String>();
         values.put("name",doc.select("h1.d-title").text());
 
-        values.put("sale-price", String.valueOf(Double.valueOf(values.getOrDefault("originprice","0"))+Double.valueOf(values.getOrDefault("transprice","0"))));
         StringBuffer options=new StringBuffer();
         if(doc.select("div.unit-detail-spec-operator") !=null){
             options.append("カラー ");
@@ -202,6 +203,7 @@ public class Worker implements Runnable{
         try {
             String baseUrl = doc.baseUri();
             String itemId = baseUrl.substring(baseUrl.indexOf("offer")+6,baseUrl.indexOf(".html"));
+            values.put("offerId",itemId);
             url = new URL("https://laputa.1688.com/offer/ajax/widgetList.do?callback=jQuery&blocks=&data=offerdetail_ditto_title%2Cofferdetail_common_report%2Cofferdetail_ditto_serviceDesc%2Cofferdetail_ditto_preferential%2Cofferdetail_ditto_postage%2Cofferdetail_ditto_offerSatisfaction%2Cofferdetail_w1190_guarantee%2Cofferdetail_w1190_tradeWay%2Cofferdetail_w1190_samplePromotion&offerId="+itemId);
             URLConnection conn = url.openConnection();
             InputStream in = conn.getInputStream();
@@ -220,12 +222,13 @@ public class Worker implements Runnable{
             e.printStackTrace();
         }
         values.put("options",options.toString().trim());
-        values.put("caption",doc.select("div#CentItemCaption1 img").toString());
-        values.put("explanation",doc.select("div#desc-lazyload-container").text());
+//        values.put("caption",doc.select("div#CentItemCaption1 img").toString());
+        values.put("explanation",listToString(doc.select("div#mod-detail-attributes table tr"),null,"\n", Entity.ValueType.LIST));
         values.put("relevant-links",listToString(doc.select("tr.ptData a"),"abs:href","\n", Entity.ValueType.LIST));
-        values.put("meta-desc",doc.select("meta[name=keywords]").attr("content"));
-        values.put("meta-key",values.get("meta-desc"));
-        values.put("meta-key",doc.select("p.elHour span span").text());
+        values.put("meta-key",doc.select("meta[name=keywords]").attr("content"));
+        values.put("meta-desc",values.get("meta-key"));
+
+//        values.put("meta-key",doc.select("p.elHour span span").text());
         values.put("delivery","1");
         values.put("astk-code","0");
         values.put("condition","0");
@@ -236,7 +239,7 @@ public class Worker implements Runnable{
 
         return values;
     }
-    private Map<String,List<String>> getImgs(Document doc){
+    private Map<String,List<String>> getImgs(Document doc,Map<String,String> values){
         Map<String,List<String>> imgs=new HashMap<>();
 //        values.put("explanation",doc.select("div#desc-lazyload-container").text());
 
@@ -252,7 +255,13 @@ public class Worker implements Runnable{
                     .get();
             List<String> detailImg = listToList(detail.select("img"),"src", Entity.ValueType.LIST).stream().map(url -> url.replace("\\\"","").replace("\"","")).collect(Collectors.toList());
             imgs.put("详情图",detailImg);
-
+            String explanation = detail.text();
+            if(explanation.length() == 34){
+                explanation = "";
+            }else {
+                explanation.substring(explanation.indexOf("=")+1,explanation.length()-2);
+            }
+            values.put("explanation",values.getOrDefault("explanation","")+explanation);
         } catch (IOException e) {
             e.printStackTrace();
         }

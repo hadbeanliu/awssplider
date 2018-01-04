@@ -3,8 +3,6 @@ package com.splider.utils;
 import com.splider.crowler.CrawlTaskExecutor;
 import com.splider.crowler.Worker;
 import com.splider.rule.*;
-import com.splider.store.PageCount;
-import org.jsoup.Jsoup;
 
 import java.io.IOException;
 import java.util.ArrayList;

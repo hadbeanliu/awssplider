@@ -33,9 +33,25 @@ public class CrawlerTest {
                     .userAgent("Mozilla/5.0 (Windows NT 6.2; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/32.0.1667.0 Safari/537.36")
                     .timeout(7000)
                     .get();
-            CrawlerTest test=new CrawlerTest();
+//            String deTailUrl = doc.select("div#desc-lazyload-container").attr("data-tfs-url");
+            System.out.println(listToString(doc.select("div#mod-detail-attributes table tr"),null,"\n", Entity.ValueType.LIST));
 
-            System.out.println(test.extract(doc));
+//            Document detail = Jsoup.connect(deTailUrl)
+//                    .userAgent("Mozilla/5.0 (Windows NT 6.2; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/32.0.1667.0 Safari/537.36")
+//                    .timeout(7000)
+//                    .get();
+
+//            String explanation = detail.text();
+
+//            if(explanation.length() == 34){
+//                explanation = "";
+//            }else {
+//                explanation.substring(explanation.indexOf("=")+1,explanation.length()-2);
+//            }
+//            System.out.println(explanation+"----");
+//            CrawlerTest test=new CrawlerTest();
+
+//            System.out.println(test.extract(doc));
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -90,10 +106,11 @@ public class CrawlerTest {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+
         values.put("options",options.toString().trim());
         values.put("caption",doc.select("div#CentItemCaption1 img").toString());
 
-        values.put("explanation",doc.select("div#desc-lazyload-container").text());
         values.put("relevant-links",listToString(doc.select("tr.ptData a"),"abs:href","\n", Entity.ValueType.LIST));
         values.put("meta-desc",doc.select("meta[name=keywords]").attr("content"));
         values.put("meta-key",values.get("meta-desc"));
