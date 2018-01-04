@@ -3,17 +3,13 @@ package com.splider.utils;
 import com.splider.feature.Fields;
 import com.splider.store.PageCount;
 import jxl.Workbook;
-import jxl.WorkbookSettings;
-import jxl.read.biff.BiffException;
 import jxl.write.Label;
 import jxl.write.WritableSheet;
 import jxl.write.WritableWorkbook;
 import jxl.write.WriteException;
 import jxl.write.biff.RowsExceededException;
-import jxl.write.biff.WritableWorkbookImpl;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -38,7 +34,7 @@ public class XLSOperater {
             Collections.sort(result, new Comparator<Map<String, String>>() {
                 @Override
                 public int compare(Map<String, String> o1, Map<String, String> o2) {
-                    return o1.get("path").compareTo(o2.get("path"));
+                    return o1.get("name").compareTo(o2.get("name"));
                 }
             });
             SimpleDateFormat format=new SimpleDateFormat("YYYY-MM-dd HH-mm");

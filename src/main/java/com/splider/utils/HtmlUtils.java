@@ -1,13 +1,8 @@
 package com.splider.utils;
 
-import com.splider.rule.ListPage;
 import com.splider.rule.PageRule;
 import com.splider.rule.UrlCrawlRule;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.select.Elements;
 
-import java.io.IOException;
 import java.util.List;
 
 public class HtmlUtils {

@@ -1,15 +1,13 @@
 package test;
 
-import com.gargoylesoftware.htmlunit.WebClient;
-import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.splider.feature.Charts;
 import com.splider.rule.Entity;
-import jdk.nashorn.internal.parser.JSONParser;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import sun.misc.IOUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -21,20 +19,30 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class CrawlerTest {
 
 
     public static void main(String[] args){
         //https://store.shopping.yahoo.co.jp/allhqfashion/a5dba1bca5.html
-        String url ="https://detail.1688.com/offer/561383079508.html?spm=a2615.7691456.0.0.739693ec5lxs0n";
+        String url ="https://detail.1688.com/offer/557604189085.html?spm=a26239.9044526.j46p98hi.1.eeed53fnOz7wa&sk=consign";
+        CrawlerTest test=new CrawlerTest();
+
         try {
             Document doc = Jsoup.connect(url)
                     .userAgent("Mozilla/5.0 (Windows NT 6.2; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/32.0.1667.0 Safari/537.36")
                     .timeout(7000)
                     .get();
+
+            List<String> mainImg = test.listToList(doc.select("div.vertical-img a.box-img img"),"src", Entity.ValueType.LIST);
+            mainImg.remove(0);
+//            mainImg.stream().map(img -> img.replace(".60x60","")).collect(Collectors.toList());
+            System.out.println(mainImg.stream().map(img -> img.replace(".60x60","")).collect(Collectors.toList()));
+//            imgs.put("主图",mainImg.stream().map(url -> url.replace(".60x60","")).collect(Collectors.toList()));
+
 //            String deTailUrl = doc.select("div#desc-lazyload-container").attr("data-tfs-url");
-            System.out.println(listToString(doc.select("div#mod-detail-attributes table tr"),null,"\n", Entity.ValueType.LIST));
+//            System.out.println(listToString(doc.select("div#mod-detail-attributes table tr"),null,"\n", Entity.ValueType.LIST));
 
 //            Document detail = Jsoup.connect(deTailUrl)
 //                    .userAgent("Mozilla/5.0 (Windows NT 6.2; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/32.0.1667.0 Safari/537.36")
@@ -49,9 +57,7 @@ public class CrawlerTest {
 //                explanation.substring(explanation.indexOf("=")+1,explanation.length()-2);
 //            }
 //            System.out.println(explanation+"----");
-//            CrawlerTest test=new CrawlerTest();
-
-//            System.out.println(test.extract(doc));
+            System.out.println(test.extract(doc));
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -93,8 +99,8 @@ public class CrawlerTest {
             URLConnection conn = url.openConnection();
             InputStream in = conn.getInputStream();
             StringWriter writer=new StringWriter();
-            org.apache.commons.io.IOUtils.copy(in,writer,"GBK");
-            String content = writer.toString();
+            String content = new String(IOUtils.readFully(in,-1,false));
+
             String json = content.substring(9,content.length()-1);
             JSONObject obj =new JSONObject(json);
             JSONObject priceObj = obj.getJSONObject("data").getJSONObject("data").getJSONObject("offerdetail_ditto_postage");

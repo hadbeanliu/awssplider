@@ -13,6 +13,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import sun.misc.IOUtils;
 
 import java.io.*;
 import java.net.*;
@@ -77,7 +78,6 @@ public class Worker implements Runnable{
                                 }
                             }
                         }
-                        System.out.println(caption);
                         if(caption.length()>0)
                             rule.getValues().put("caption",caption.toString());
                     }
@@ -207,15 +207,17 @@ public class Worker implements Runnable{
             url = new URL("https://laputa.1688.com/offer/ajax/widgetList.do?callback=jQuery&blocks=&data=offerdetail_ditto_title%2Cofferdetail_common_report%2Cofferdetail_ditto_serviceDesc%2Cofferdetail_ditto_preferential%2Cofferdetail_ditto_postage%2Cofferdetail_ditto_offerSatisfaction%2Cofferdetail_w1190_guarantee%2Cofferdetail_w1190_tradeWay%2Cofferdetail_w1190_samplePromotion&offerId="+itemId);
             URLConnection conn = url.openConnection();
             InputStream in = conn.getInputStream();
-            StringWriter writer=new StringWriter();
-            org.apache.commons.io.IOUtils.copy(in,writer,"GBK");
-            String content = writer.toString();
+//            StringWriter writer=new StringWriter();
+//            org.apache.commons.io.IOUtils.copy(in,writer,"GBK");
+//            IOUtils.readFully(in,-1,false);
+            String content = new String(IOUtils.readFully(in,-1,false));
             String json = content.substring(9,content.length()-1);
             JSONObject obj =new JSONObject(json);
             JSONObject priceObj = obj.getJSONObject("data").getJSONObject("data").getJSONObject("offerdetail_ditto_postage");
             double tranPrice = priceObj.getJSONArray("freightCost").getJSONObject(0).getDouble("totalCost");
             double perPrice = Double.parseDouble(priceObj.getString("price"));
             values.put("sale-price", String.valueOf(tranPrice+perPrice));
+            in.close();
         } catch (MalformedURLException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -243,10 +245,12 @@ public class Worker implements Runnable{
         Map<String,List<String>> imgs=new HashMap<>();
 //        values.put("explanation",doc.select("div#desc-lazyload-container").text());
 
-        List<String> mainImg = listToList(doc.select("div.vertical-img img"),"data-lazy-src", Entity.ValueType.LIST);
-        mainImg.remove(0);
-        mainImg.stream().map(url -> url.replace(".60x60","")).collect(Collectors.toList());
-        imgs.put("主图",mainImg.stream().map(url -> url.replace(".60x60","")).collect(Collectors.toList()));
+        List<String> mainImg = listToList(doc.select("li.tab-trigger"),"data-imgs", Entity.ValueType.LIST);
+        mainImg = mainImg.stream().map(url -> {
+            JSONObject obj = new JSONObject(url);
+            return obj.getString("original");
+        }).collect(Collectors.toList());
+        imgs.put("主图",mainImg);
         String deTailUrl = doc.select("div#desc-lazyload-container").attr("data-tfs-url");
         try {
             Document detail = Jsoup.connect(deTailUrl)
@@ -259,9 +263,9 @@ public class Worker implements Runnable{
             if(explanation.length() == 34){
                 explanation = "";
             }else {
-                explanation.substring(explanation.indexOf("=")+1,explanation.length()-2);
+                explanation = explanation.substring(explanation.indexOf("=")+13,explanation.length()-2);
             }
-            values.put("explanation",values.getOrDefault("explanation","")+explanation);
+            values.put("explanation",values.getOrDefault("explanation","")+"\n"+explanation);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -345,7 +349,6 @@ public class Worker implements Runnable{
         try {
             url = new URL(imgUrl);
         //链接网络地址
-            System.out.println("img:"+imgUrl);
             HttpURLConnection connection = (HttpURLConnection)url.openConnection();
             connection.setConnectTimeout(20000);
             connection.setReadTimeout(30000);
@@ -363,6 +366,7 @@ public class Worker implements Runnable{
             out.close();
             is.close();
         } catch (MalformedURLException e) {
+            System.out.println(filePath+"/"+name+"----"+imgUrl);
             e.printStackTrace();
         } finally {
             try {
