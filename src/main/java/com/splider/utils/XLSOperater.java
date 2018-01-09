@@ -30,7 +30,8 @@ public class XLSOperater {
         return xlsWrite;
     }
     public synchronized void output(PageCount count,boolean force){
-        if(force||flag&&(count.getFailNum()+count.getSuccessNum() >= count.getAll())&&result.size()>0){
+
+        if(force||(flag&&(count.getFailNum()+count.getSuccessNum() >= count.getAll())&&result.size()>0)){
             Collections.sort(result, new Comparator<Map<String, String>>() {
                 @Override
                 public int compare(Map<String, String> o1, Map<String, String> o2) {
@@ -39,41 +40,45 @@ public class XLSOperater {
             });
             SimpleDateFormat format=new SimpleDateFormat("YYYY-MM-dd HH-mm");
             String path=System.getProperty("user.dir")+"/"+format.format(new Date())+".xls";
-            WritableWorkbook wwk=null;
-            try {
-                wwk=Workbook.createWorkbook(new File(path));
-                WritableSheet sheet=wwk.createSheet("item",0);
-                String[] cols=fields.getCols();
-                int colSize=cols.length;
-                int rowSize=result.size();
-                for(int i=0;i<colSize;i++){
-                    Label label=new Label(i,0,cols[i]);
-                    sheet.addCell(label);
-                }
-//                WritableCell cell=sheet.getWritableCell()
-                for(int j=0;j<rowSize;j++){
-                    Map<String,String> values=result.get(j);
-                    for(int i=0;i<colSize;i++){
-                        sheet.addCell(new Label(i,j+1,values.get(cols[i])));
-                    }
+            newChartsTable(path,fields.getCols());
+            newChartsTable(System.getProperty("user.dir")+"/collect_"+format.format(new Date())+".xls",new String[]{"url","name","code"});
+        }
 
+    }
+    private void newChartsTable(String fileName,String[] cols){
+        WritableWorkbook wwk=null;
+        try {
+            wwk=Workbook.createWorkbook(new File(fileName));
+            WritableSheet sheet=wwk.createSheet("item",0);
+            int colSize=cols.length;
+            int rowSize=result.size();
+            for(int i=0;i<colSize;i++){
+                Label label=new Label(i,0,cols[i]);
+                sheet.addCell(label);
+            }
+
+            for(int j=0;j<rowSize;j++){
+                Map<String,String> values=result.get(j);
+                for(int i=0;i<colSize;i++){
+                    sheet.addCell(new Label(i,j+1,values.get(cols[i])));
                 }
-                wwk.write();
-                flag=false;
+
+            }
+            wwk.write();
+            flag=true;
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (RowsExceededException e) {
+            e.printStackTrace();
+        } catch (WriteException e) {
+            e.printStackTrace();
+        }finally {
+            try {
+                wwk.close();
             } catch (IOException e) {
-                e.printStackTrace();
-            } catch (RowsExceededException e) {
                 e.printStackTrace();
             } catch (WriteException e) {
                 e.printStackTrace();
-            }finally {
-                try {
-                    wwk.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (WriteException e) {
-                    e.printStackTrace();
-                }
             }
         }
 

@@ -29,7 +29,8 @@
         <RadioButton fx:id="isAll"  selected="true" text="是否为列表页"/>
 
         <RadioButton fx:id="download" selected="true" text="是否下载图片"/>
-
+        <Label text="   "/>
+        <TextField fx:id="prefix" promptText="商品CODE" />
     </HBox>
     <HBox spacing="10" alignment="bottom_right" GridPane.columnIndex="1"
           GridPane.rowIndex="5">

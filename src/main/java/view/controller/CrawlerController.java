@@ -30,6 +30,8 @@ public class CrawlerController implements Initializable{
     @FXML
     private TextField url;
     @FXML
+    private TextField prefix;
+    @FXML
     private RadioButton isAll;
     @FXML
     private RadioButton download;
@@ -50,6 +52,9 @@ public class CrawlerController implements Initializable{
             PropertiesMgr.set("download.file","1");
         }else {
             PropertiesMgr.set("download.file","0");
+        }
+        if(prefix.getText()!=null){
+            PropertiesMgr.set("prefix",prefix.getText());
         }
         Platform.runLater(() -> {
             UrlCrawlRule rule=UrlCrawlRule.build(url.getText(),isAll.isSelected()? CrawlType.FLIP:CrawlType.DETAIL);

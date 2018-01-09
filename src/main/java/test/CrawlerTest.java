@@ -26,7 +26,7 @@ public class CrawlerTest {
 
     public static void main(String[] args){
         //https://store.shopping.yahoo.co.jp/allhqfashion/a5dba1bca5.html
-        String url ="https://detail.1688.com/offer/557604189085.html?spm=a26239.9044526.j46p98hi.1.eeed53fnOz7wa&sk=consign";
+        String url ="https://detail.1688.com/offer/560155101222.html?spm=a2615.7691456.0.0.712b5c55EVGiot";
         CrawlerTest test=new CrawlerTest();
 
         try {
@@ -35,10 +35,10 @@ public class CrawlerTest {
                     .timeout(7000)
                     .get();
 
-            List<String> mainImg = test.listToList(doc.select("div.vertical-img a.box-img img"),"src", Entity.ValueType.LIST);
-            mainImg.remove(0);
+//            List<String> mainImg = test.listToList(doc.select("div.vertical-img a.box-img img"),"src", Entity.ValueType.LIST);
+//            mainImg.remove(0);
 //            mainImg.stream().map(img -> img.replace(".60x60","")).collect(Collectors.toList());
-            System.out.println(mainImg.stream().map(img -> img.replace(".60x60","")).collect(Collectors.toList()));
+            System.out.println(doc.select("div.ssd").size());
 //            imgs.put("主图",mainImg.stream().map(url -> url.replace(".60x60","")).collect(Collectors.toList()));
 
 //            String deTailUrl = doc.select("div#desc-lazyload-container").attr("data-tfs-url");
@@ -57,7 +57,7 @@ public class CrawlerTest {
 //                explanation.substring(explanation.indexOf("=")+1,explanation.length()-2);
 //            }
 //            System.out.println(explanation+"----");
-            System.out.println(test.extract(doc));
+//            System.out.println(test.extract(doc));
 
         } catch (IOException e) {
             e.printStackTrace();

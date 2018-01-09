@@ -47,7 +47,8 @@ public class Worker implements Runnable{
                     rule.setValues(extract(doc));
 
                     HistoryManager.getInstance(null).add(rule.getUrl(),1);
-                    String prefix=rule.getValues().get("offerId");
+                    String prefix=PropertiesMgr.get("prefix",rule.getValues().get("offerId"))+"-"+atomicInteger.getAndIncrement();
+                    rule.getValues().put("code",prefix);
                     String suffix = PropertiesMgr.get("img.suffix");
                     if(PropertiesMgr.getInt("download.file",0)==1){
                         StringBuffer caption=new StringBuffer();
@@ -69,7 +70,7 @@ public class Worker implements Runnable{
                                         }
                                         downImages(path,index,url);
                                         if(k.equals("详情图"))
-                                            caption.append("<img src=\"https://shopping.c.yimg.jp/lib/lefutur/").append(index).append("  width=\"100%\" alt = \"\"  style=\"margin-top:10px;\" >\n");
+                                            caption.append("<img src=\"https://shopping.c.yimg.jp/lib/lefutur/").append(index).append("\"  width=\"100%\" alt = \"\"  style=\"margin-top:10px;\" >\n");
                                         i++;
                                     } catch (Exception e) {
                                         System.out.println(k+":no found:"+url+" from:"+rule.getUrl());
@@ -78,8 +79,10 @@ public class Worker implements Runnable{
                                 }
                             }
                         }
-                        if(caption.length()>0)
+                        if(caption.length()>0){
                             rule.getValues().put("caption",caption.toString());
+                            rule.getValues().put("sp-additional",caption.toString().replaceAll("https://shopping.c.yimg.jp/lib/lefutur",""));
+                        }
                     }
                     XLSOperater.getXlsWrite().add(rule.getValues());
                     rule.setStatus(1);
@@ -179,9 +182,9 @@ public class Worker implements Runnable{
 
         Map<String,String> values=new HashMap<String, String>();
         values.put("name",doc.select("h1.d-title").text());
-
+        values.put("url",doc.baseUri());
         StringBuffer options=new StringBuffer();
-        if(doc.select("div.unit-detail-spec-operator") !=null){
+        if(doc.select("div.unit-detail-spec-operator").size()>0){
             options.append("カラー ");
             List<String> colors =listToList(doc.select("div.unit-detail-spec-operator"),"data-unit-config", Entity.ValueType.LIST);
             if(colors.size() > 0){
@@ -190,14 +193,23 @@ public class Worker implements Runnable{
                     options.append(Charts.getCharts().translate(obj.getString("name"))).append(" ");
                 }
             }
-            options.append("\n");
+            options.append("\n\n");
         }
-        if(doc.select("div.obj-sku table.table-sku  td.name")!=null){
+        if(doc.select("div.obj-sku table.table-sku  tr").size()>0){
             String cata = doc.select("div.obj-sku div.obj-header").text();
             if(cata.equals("尺码"))
                 options.append("サイズ ");
+            else if (cata.equals("颜色"))
+                options.append("カラー ");
             else options.append(cata).append(" ");
-            options.append(listToString(doc.select("div.obj-sku table.table-sku  td.name"),null," ", Entity.ValueType.LIST)).append("\n");
+            List<String> colors =listToList(doc.select("div.obj-sku table.table-sku  tr"),"data-sku-config", Entity.ValueType.LIST);
+            if(colors.size() > 0){
+                for (String str:colors){
+                    JSONObject obj = new JSONObject(str);
+                    options.append(Charts.getCharts().translate(obj.getString("skuName"))).append(" ");
+                }
+            }
+            options.append("\n\n");
         }
         URL url =null;
         try {
@@ -214,9 +226,20 @@ public class Worker implements Runnable{
             String json = content.substring(9,content.length()-1);
             JSONObject obj =new JSONObject(json);
             JSONObject priceObj = obj.getJSONObject("data").getJSONObject("data").getJSONObject("offerdetail_ditto_postage");
-            double tranPrice = priceObj.getJSONArray("freightCost").getJSONObject(0).getDouble("totalCost");
+            double tranPrice = 0;
+            if(priceObj.has("freightCost")){
+                tranPrice = priceObj.getJSONArray("freightCost").getJSONObject(0).getDouble("totalCost");
+            }
             double perPrice = Double.parseDouble(priceObj.getString("price"));
-            values.put("sale-price", String.valueOf(tranPrice+perPrice));
+            double total = tranPrice + perPrice;
+            if( 100<total && total<=500){
+                total = total*2.5*17;
+            }else if(total <= 100){
+                total = total*3*17;
+            }else {
+                total = total *2*17;
+            }
+            values.put("price", String.valueOf(total));
             in.close();
         } catch (MalformedURLException e) {
             e.printStackTrace();
@@ -232,6 +255,8 @@ public class Worker implements Runnable{
 
 //        values.put("meta-key",doc.select("p.elHour span span").text());
         values.put("delivery","1");
+        values.put("taxable","1");
+        values.put("point-code","5");
         values.put("astk-code","0");
         values.put("condition","0");
 
