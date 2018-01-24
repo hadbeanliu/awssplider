@@ -1,7 +1,8 @@
 package com.splider.utils;
 
-import com.splider.crowler.CrawlTaskExecutor;
-import com.splider.crowler.Worker;
+import com.splider.crawler.CrawlTaskExecutor;
+import com.splider.crawler.WorkFactory;
+import com.splider.crawler.Worker;
 import com.splider.rule.*;
 
 import java.io.IOException;
@@ -18,7 +19,8 @@ public class HtmlParser {
 
     public void parser(UrlCrawlRule rule){
         if(filter.filter(rule.getUrl())) {
-            Worker task = new Worker(rule);
+
+            Worker task = WorkFactory.buildWork(rule);
             CrawlTaskExecutor.getInstance().execute(task);
         } else {
 

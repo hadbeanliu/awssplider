@@ -1,4 +1,4 @@
-package com.splider.crowler;
+package com.splider.crawler;
 
 import com.splider.rule.CrawlType;
 import com.splider.rule.UrlCrawlRule;

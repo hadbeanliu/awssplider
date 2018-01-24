@@ -1,37 +1,32 @@
-package com.splider.crowler;
+package com.splider.crawler;
 
 import com.splider.feature.Charts;
 import com.splider.rule.CrawlType;
 import com.splider.rule.Entity;
 import com.splider.rule.UrlCrawlRule;
 import com.splider.store.PageCount;
-import com.splider.utils.HtmlUtils;
 import com.splider.utils.PropertiesMgr;
 import com.splider.utils.XLSOperater;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 import sun.misc.IOUtils;
 
 import java.io.*;
 import java.net.*;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-public class Worker implements Runnable{
+public class Ali88Worker extends Worker{
 
     public static PageCount count =PageCount.getCount();
     public static AtomicInteger atomicInteger=new AtomicInteger();
-    private UrlCrawlRule rule;
 
-    public Worker(UrlCrawlRule rule) {
-        this.rule = rule;
+    public Ali88Worker(UrlCrawlRule rule) {
+        super(rule);
     }
 
     public void run() {
@@ -98,66 +93,7 @@ public class Worker implements Runnable{
                     return;
                 }
             }
-            if(rule.getEntities()==null||rule.getEntities().size()==0){
-                return ;
-            }
-            List<Entity> entities = rule.getEntities();
-
-            for (Entity meta:entities){
-                CrawlType type = meta.getType();
-                switch (type){
-                    case FLIP:{
-                        System.out.println("翻页："+doc.select(meta.getQuery()).attr(meta.getAttr()));
-//                        HtmlUtils.getInstance().startCrawler();
-                        String url =doc.select(meta.getQuery()).attr(meta.getAttr());
-                        UrlCrawlRule newRule=new UrlCrawlRule(url,CrawlType.FLIP);
-                        newRule.setEntities(rule.getEntities());
-                        HtmlUtils.getInstance().startCrawl(newRule);
-                        break;
-                    }
-                    case LIST:{
-                        CrawlType newType=CrawlType.DETAIL;
-                        String value = meta.getDefaultValue()==null?doc.select(meta.getQuery()).attr(meta.getAttr()):meta.getDefaultValue();
-                        Elements elements=doc.select(meta.getQuery());
-                        if(elements.size()!=0){
-                            if(rule.getChildren() ==null){
-                              List<UrlCrawlRule> children=new ArrayList<UrlCrawlRule>();
-                              rule.setChildren(children);
-                            }
-                            for(Element ele:elements){
-                                UrlCrawlRule child=new UrlCrawlRule(ele.attr(meta.getAttr()),newType);
-                                rule.getChildren().add(child);
-                            }
-                            HtmlUtils.getInstance().startCrawl(rule.getChildren());
-                            System.out.println(count);
-                        }
-                        break;
-                    }
-                    case CONTENT:{
-                        Map<String,String> values = rule.getValues()==null?new HashMap<String,String>():rule.getValues();
-                        Elements eles =doc.select(meta.getQuery());
-                        if(meta.getValueType() == Entity.ValueType.LIST){
-                            StringBuffer sb=new StringBuffer();
-                            int size = eles.size();
-                            int i = 1;
-                            for(Element e:eles){
-                                sb.append(e.attr(meta.getAttr(),meta.getDefaultValue()));
-                                if(i < size)
-                                    sb.append(meta.getSeparator());
-                            }
-                            values.put(meta.getKey(),sb.toString());
-                        }else {
-                            if(meta.getAttr()==null) {
-                                values.put(meta.getKey(), eles.text());
-                            }else {
-                            values.put(meta.getKey(), eles.attr(meta.getAttr()));
-                           }
-                        }
-                        rule.setValues(values);
-                        break;
-                    }
-                }
-            }
+            changePage(doc);
         }catch(IOException e){
             e.printStackTrace();
             System.out.println(rule.getUrl());
@@ -178,7 +114,7 @@ public class Worker implements Runnable{
     public void setRule(UrlCrawlRule rule) {
         this.rule = rule;
     }
-    private Map<String,String> extract(Document doc){
+    protected Map<String,String> extract(Document doc){
 
         Map<String,String> values=new HashMap<String, String>();
         values.put("name",doc.select("h1.d-title").text());
@@ -298,55 +234,6 @@ public class Worker implements Runnable{
 
         return  imgs;
     }
-    private List<String> listToList(Elements eles, String attr,Entity.ValueType valueType){
-
-        int size =eles.size();
-        if(size!=0&&valueType == Entity.ValueType.LIST){
-            List<String> imgUrls=new ArrayList<>();
-            for(Element e:eles){
-                if(attr==null)
-                   imgUrls.add(e.text());
-                else imgUrls.add(e.attr(attr));
-            }
-            return imgUrls;
-        }
-        return null;
-    }
-    private String listToString(Elements eles, String attr, String speractor, Entity.ValueType valueType){
-
-        if(valueType == Entity.ValueType.LIST){
-            StringBuffer sb=new StringBuffer();
-            int size = eles.size();
-            int i = 1;
-            for(Element e:eles){
-                if(attr==null) {
-                    sb.append(e.text());
-                }else {
-                    sb.append(e.attr(attr));
-                }
-                if(i < size)
-                    sb.append(speractor);
-                i++;
-            }
-            return sb.toString();
-        }
-        return null;
-    }
-
-    private void sleep(){
-        try {
-            Thread.sleep(Integer.parseInt(PropertiesMgr.get("min.sleep.time","1500")));
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
-    private void imgSleep(){
-        try {
-            Thread.sleep(Long.parseLong(PropertiesMgr.get("download.sleep.time","200")));
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
 
     public void downImages(String filePath,String name,String imgUrl) throws IOException {
         imgSleep();
@@ -409,7 +296,6 @@ public class Worker implements Runnable{
 
     public static void main(String[] args){
         String url ="https://51.photoup-pro.com/up/2520668352/20171202-30f5koe6s4w/if8dlvcqg0x4w.jpg";
-        Worker worker=new Worker(null);
 //        try {
 ////            worker.downImages("/home/hadoop/Downloads","dd",url);
 //        } catch (UnsupportedEncodingException e) {

@@ -1,6 +1,6 @@
 package view.controller;
 
-import com.splider.crowler.CrawlTaskExecutor;
+import com.splider.crawler.CrawlTaskExecutor;
 import com.splider.rule.CrawlType;
 import com.splider.rule.UrlCrawlRule;
 import com.splider.store.PageCount;

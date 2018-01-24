@@ -45,8 +45,10 @@ public class Charts {
             Cell[] name= sheet.getColumn(2);
             int length = Math.min(code.length,name.length);
             for(int i=1;i<length;i++){
-                String[] categorys= name[i].getContents().split(">");
-                tableMap.put(categorys[categorys.length-1].trim(),code[i].getContents());
+//                String[] categorys= name[i].getContents().split(">");
+                tableMap.put(name[i].getContents().replaceAll(">",":").trim(),code[i].getContents());
+                if(i == 100)
+                    System.out.println(name[i].getContents().replaceAll(">",":").trim());
             }
             worker.close();
 
@@ -76,7 +78,7 @@ public class Charts {
     public static void main(String[] args){
         Charts chart=Charts.getCharts();
 //        " スポーツ >  アウトドア "
-        System.out.println(chart.get("せっけん"));
+        System.out.println(chart.get("スマホ、タブレット、パソコン : スマホアクセサリー : スマホケース : iPhone6・6s ケース"));
     }
 
 }

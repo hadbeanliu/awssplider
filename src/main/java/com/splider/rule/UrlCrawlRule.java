@@ -97,11 +97,18 @@ public class UrlCrawlRule {
     public static  UrlCrawlRule build(String url,CrawlType type){
         UrlCrawlRule rule=new UrlCrawlRule(url,type);
         if(type == CrawlType.FLIP){
-        List<Entity> entities=new ArrayList<Entity>();
-        entities.add(new Entity("","a.next","abs:href",CrawlType.FLIP));
-        entities.add(new Entity("","div.wp-offerlist-windows ul.offer-list-row div.title a","abs:href",CrawlType.LIST));
-//        entities.add(new Entity("catalog","div#TopSPathList1 li:last-child strong",null,CrawlType.CONTENT));
-        rule.setEntities(entities);
+            if (url.contains("yahoo.co.jp")){
+
+                List<Entity> entities=new ArrayList<Entity>();
+                entities.add(new Entity("","li.elNext a","abs:href",CrawlType.FLIP));
+                entities.add(new Entity("","div#itmlst dt a","abs:href",CrawlType.LIST));
+                rule.setEntities(entities);
+            }else {
+                List<Entity> entities=new ArrayList<Entity>();
+                entities.add(new Entity("","a.next","abs:href",CrawlType.FLIP));
+                entities.add(new Entity("","div.wp-offerlist-windows ul.offer-list-row div.title a","abs:href",CrawlType.LIST));
+                rule.setEntities(entities);
+            }
         }
         return rule;
     }

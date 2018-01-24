@@ -1,4 +1,4 @@
-package com.splider.crowler;
+package com.splider.crawler;
 
 import java.util.Hashtable;
 import java.util.Map;
